@@ -1,0 +1,13 @@
+export const capitalizeWords = (category: string): string => {
+    return category
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
+export const createSlug = (str: string): string => {
+    return str
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-');
+};
