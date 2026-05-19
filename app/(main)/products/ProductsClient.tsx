@@ -96,7 +96,7 @@ export default function HomePage() {
     setProductIndex(newIndex);
     
     if (products.length > 3 && productGridRef.current) {
-      const cardWidth = productGridRef.current.children[0]?.offsetWidth + 24 || 0;
+      const cardWidth = (productGridRef.current.children[0] as HTMLElement)?.offsetWidth + 24 || 0;
       productGridRef.current.style.transform = `translateX(-${newIndex * cardWidth}px)`;
     }
   }, [activeCategory, productIndex]);
