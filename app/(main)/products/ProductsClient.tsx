@@ -144,7 +144,6 @@ export default function HomePage() {
           .promo-wrap{padding:0;background:#F7F9F6}
           .promo-banner{min-height:300px;height:40vh;max-height:380px;width:100%;overflow:hidden;position:relative;
             background:linear-gradient(90deg,rgba(13,32,24,.58) 0%,rgba(13,32,24,.28) 44%,rgba(13,32,24,.08) 100%),
-                        url('products_banner.jpeg') center/cover no-repeat,
                         linear-gradient(135deg,#EAF2E7,#C8DDBF);
             display:flex;align-items:center;padding:92px 6vw 42px}
           .promo-content{position:relative;z-index:2;max-width:520px;color:#fff}
