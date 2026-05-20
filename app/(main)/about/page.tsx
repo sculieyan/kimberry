@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
             description: `New Zealand's trusted dairy manufacturer with ${yearsSince} years of excellence. MPI-certified, sustainable production, and unwavering commitment to quality.`,
             images: [
                 {
-                    url: '/about/aboutus.jpg',
+                    url: 'https://amplify-mynextjspostgres--kimberryhomestoragebucke-hynjyaubcbzh.s3.ap-southeast-2.amazonaws.com/profile-image/aboutus.jpg',
                     width: 1200,
                     height: 630,
                     alt: 'Kimberry Dairy Production Facility'
@@ -79,7 +79,7 @@ export default async function About() {
     
     return (
         <div className="min-h-screen pt-20 dark:bg-white">
-            <HeroSection title="We&apos;ve crafted pure, wholesome foods" description="Join us on this journey of health, taste, and trust" image="/about/aboutus.jpg" />
+            <HeroSection title="We&apos;ve crafted pure, wholesome foods" description="Join us on this journey of health, taste, and trust" image="https://amplify-mynextjspostgres--kimberryhomestoragebucke-hynjyaubcbzh.s3.ap-southeast-2.amazonaws.com/profile-image/aboutus.jpg" />
             {/* Company Introduction */}
             <section className="py-20 bg-white">
                 <div className="container mx-auto px-4">
