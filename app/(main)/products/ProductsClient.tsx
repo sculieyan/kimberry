@@ -142,7 +142,7 @@ export default function HomePage() {
             border:1px solid rgba(255,255,255,.32);display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
           .nav.scrolled .nav-cta{background:var(--forest);color:#fff;border-color:var(--forest)}
           .promo-wrap{padding:0;background:#F7F9F6}
-          .promo-banner{min-height:300px;height:40vh;max-height:380px;width:100vw;overflow:hidden;position:relative;
+          .promo-banner{min-height:300px;height:40vh;max-height:380px;width:100%;overflow:hidden;position:relative;
             background:linear-gradient(90deg,rgba(13,32,24,.58) 0%,rgba(13,32,24,.28) 44%,rgba(13,32,24,.08) 100%),
                         url('products_banner.jpeg') center/cover no-repeat,
                         linear-gradient(135deg,#EAF2E7,#C8DDBF);
@@ -414,8 +414,8 @@ export default function HomePage() {
           }
           @media(max-width:760px){
             .nav-links,.nav-cta{display:none}
-            .promo-wrap{padding:24px 5vw 20px}
-            .promo-banner{border-radius:0;min-height:260px;height:auto;max-height:none;padding:96px 28px 54px}
+            .promo-wrap{padding:0}
+            .promo-banner{border-radius:0;min-height:260px;height:auto;max-height:none;padding:96px 6vw 54px}
             .promo-products{opacity:.24}
             .hero-pack.oatmeal{width:190px;right:0;top:52%}
             .hero-pack.beans{width:132px;right:-28px;top:58%}
