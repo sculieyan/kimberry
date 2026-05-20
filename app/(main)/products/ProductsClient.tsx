@@ -24,21 +24,21 @@ const data: Record<string, CategoryData> = {
   oatmeal: {
     title: "A creamy everyday meal from <em>oats and milk</em>.",
     desc: "Made with New Zealand rolled oats and instant whole milk powder, Kimberry Milk Oatmeal brings together natural grain aroma and dairy richness. It is designed for breakfast, school mornings, work breaks and simple daily nutrition.",
-    proof: [["400g","10 sachets × 40g"],["3","Flavours"],["0","Additives · Preservatives · Colours"]],
+    proof: [["400g","10 sachets × 40g"],["2","Flavours"],["0","Additives · Preservatives · Colours"]],
     products: [
-      {title:"Milk\\A Oatmeal", name:"Unsweetened", desc:"A simple oat and milk base for customers who prefer a cleaner, less sweet daily breakfast.", image:"/products/new_milk_oatmeal_green.png", bg:"linear-gradient(135deg,#EAF3FC,#D9E8F6)", pack:"linear-gradient(180deg,#FFFFFF 0%,#EAF3FC 48%,#1C3A5E 100%)"},
-      {title:"Milk\\A Oatmeal", name:"Classic", desc:"A lightly sweetened profile with creamy milk aroma and natural oat texture.", image:"/products/new_milk_oatmeal_green.png", bg:"linear-gradient(135deg,#F7F2E8,#EAD9B8)", pack:"linear-gradient(180deg,#FFF9EB 0%,#F3E6CF 48%,#C8A96E 100%)"},
-      {title:"Milk\\A Oatmeal", name:"Coconut", desc:"Creamy oats with a gentle coconut finish, bringing a softer tropical flavour to everyday breakfasts and light meals.", image:"/products/new_milk_oatmeal_green.png", bg:"linear-gradient(135deg,#F4F8F3,#DDEBDD)", pack:"linear-gradient(180deg,#FFFFFF 0%,#E9F2E7 48%,#6F9477 100%)"}
+      {title:"Milk\\A Oatmeal", name:"Unsweetened", desc:"A simple oat and milk base for customers who prefer a cleaner, less sweet daily breakfast.", image:"/products/unsweetened_milk_oats.png", bg:"linear-gradient(135deg,#EAF3FC,#D9E8F6)", pack:"linear-gradient(180deg,#FFFFFF 0%,#EAF3FC 48%,#1C3A5E 100%)"},
+      {title:"Milk\\A Oatmeal", name:"Classic", desc:"A lightly sweetened profile with creamy milk aroma and natural oat texture.", image:"/products/classic_milk_oatmeal_front.png", bg:"linear-gradient(135deg,#F7F2E8,#EAD9B8)", pack:"linear-gradient(180deg,#FFF9EB 0%,#F3E6CF 48%,#C8A96E 100%)"},
+      // {title:"Milk\\A Oatmeal", name:"Coconut", desc:"Creamy oats with a gentle coconut finish, bringing a softer tropical flavour to everyday breakfasts and light meals.", image:"/products/new_milk_oatmeal_green.png", bg:"linear-gradient(135deg,#F4F8F3,#DDEBDD)", pack:"linear-gradient(180deg,#FFFFFF 0%,#E9F2E7 48%,#6F9477 100%)"}
     ]
   },
   tablets: {
     title: "An everyday milk snack with <em>real dairy</em>.",
     desc: "Built on a New Zealand milk base, then layered with chocolate pieces, coconut notes and other flavour combinations — creating a snack that feels more satisfying, more balanced and easier to enjoy every day.",
-    proof: [["15g","Each pack"],["3","Flavours"],["0","Additives · Preservatives · Colours"]],
+    proof: [["15g","Each pack"],["1","Flavours"],["0","Additives · Preservatives · Colours"]],
     products: [
-      {title:"Milk\\A Tablets", name:"Dark Chocolate Chips", desc:"A creamy milk-based snack balanced with crisp dark chocolate pieces, creating a richer cocoa finish while still keeping a smooth dairy texture.", image:"/products/milk_tablet_front.png", bg:"linear-gradient(135deg,#F7F2E8,#E3C9A8)", pack:"linear-gradient(180deg,#FFF7E8 0%,#EFDABD 48%,#8A6338 100%)"},
-      {title:"Milk\\A Tablets", name:"Coconut", desc:"Soft milk flavour with gentle coconut notes, bringing a lighter and more relaxed tropical profile for everyday snacking.", image:"/products/milk_tablet_front.png", bg:"linear-gradient(135deg,#EAF0FF,#C9D6F3)", pack:"linear-gradient(180deg,#FFFFFF 0%,#EAF0FF 48%,#6173A5 100%)"},
-      {title:"Milk\\A Tablets", name:"Dark Chocolate Chips With Coconut", desc:"Dark chocolate texture layered with subtle coconut flavour, combining creamy dairy richness with a softer tropical finish.", image:"/products/milk_tablet_front.png", bg:"linear-gradient(135deg,#FFF4D6,#EFD789)", pack:"linear-gradient(180deg,#FFFCEF 0%,#F2E0A3 48%,#C8A96E 100%)"}
+      {title:"Milk\\A Tablets", name:"Dark Chocolate Chips", desc:"A creamy milk-based snack balanced with crisp dark chocolate pieces, creating a richer cocoa finish while still keeping a smooth dairy texture.", image:"/products/milk_beans_front.png", bg:"linear-gradient(135deg,#F7F2E8,#E3C9A8)", pack:"linear-gradient(180deg,#FFF7E8 0%,#EFDABD 48%,#8A6338 100%)"},
+      // {title:"Milk\\A Tablets", name:"Coconut", desc:"Soft milk flavour with gentle coconut notes, bringing a lighter and more relaxed tropical profile for everyday snacking.", image:"/products/milk_tablet_front.png", bg:"linear-gradient(135deg,#EAF0FF,#C9D6F3)", pack:"linear-gradient(180deg,#FFFFFF 0%,#EAF0FF 48%,#6173A5 100%)"},
+      // {title:"Milk\\A Tablets", name:"Dark Chocolate Chips With Coconut", desc:"Dark chocolate texture layered with subtle coconut flavour, combining creamy dairy richness with a softer tropical finish.", image:"/products/milk_tablet_front.png", bg:"linear-gradient(135deg,#FFF4D6,#EFD789)", pack:"linear-gradient(180deg,#FFFCEF 0%,#F2E0A3 48%,#C8A96E 100%)"}
     ]
   },
   oats: {
@@ -46,7 +46,7 @@ const data: Record<string, CategoryData> = {
     desc: "Made with quality New Zealand oats, Kimberry Quick Oats focus on natural oat texture, gentle flavour and practical everyday use — from warm breakfasts to baking and family pantry cooking.",
     proof: [["800g","Each pack"],["100%","Wholegrain oats"],["0","Additives · Preservatives · Colours"]],
     products: [
-      {title:"Pure\\A Oats", name:"Original", desc:"Natural oat texture designed for porridge, overnight oats, smoothies and simple everyday cooking.", image:"/products/oats_front2.png", bg:"linear-gradient(135deg,#F4F8F3,#DDEBDD)", pack:"linear-gradient(180deg,#FFFFFF 0%,#E9F2E7 48%,#6F9477 100%)"}
+      {title:"Pure\\A Oats", name:"Original", desc:"Natural oat texture designed for porridge, overnight oats, smoothies and simple everyday cooking.", image:"/products/oats_front.png", bg:"linear-gradient(135deg,#F4F8F3,#DDEBDD)", pack:"linear-gradient(180deg,#FFFFFF 0%,#E9F2E7 48%,#6F9477 100%)"}
     ]
   }
 };
@@ -208,7 +208,7 @@ export default function HomePage() {
           }
           .category-section{padding:30px 6vw 24px;background:#F7F9F6}
           .category-row{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:center}
-          .row-label{font-family:'Outfit',sans-serif;font-size:18px;color:var(--ink);font-weight:500;letter-spacing:-.02em}
+          .row-label{font-family:'Outfit',sans-serif;font-size:18px;color:var(--ink);font-weight:500;letter-spacing:-.02em;text-transform: uppercase}
           .category-tabs{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
           /* 完全还原HTML中的按钮样式 */
           .category-tab{
@@ -441,9 +441,9 @@ export default function HomePage() {
               <p>Built with quality New Zealand milk and oats, Kimberry creates simple everyday foods using trusted local ingredients — proudly made in New Zealand.</p>
             </div>
             <div className="promo-products">
-              <img src="/products/new_milk_oatmeal_green.png" alt="Oatmeal" className="hero-pack oatmeal" />
-              <img src="/products/milk_tablet_front.png" alt="Tablets" className="hero-pack beans" />
-              <img src="/products/oats_front2.png" alt="Oats" className="hero-pack oats" />
+              <img src="/products/classic_milk_oatmeal_front.png" alt="Oatmeal" className="hero-pack oatmeal" />
+              <img src="/products/milk_beans_front.png" alt="Tablets" className="hero-pack beans" />
+              <img src="/products/oats_front.png" alt="Oats" className="hero-pack oats" />
             </div>
           </div>
         </section>
