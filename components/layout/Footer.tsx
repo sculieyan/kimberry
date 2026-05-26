@@ -29,8 +29,7 @@ export default function Footer() {
             <ul className="space-y-2 font-josefin">
               <li><Link href="/about" className="text-gray-400 hover:text-white">About Us</Link></li>
               <li><Link href="/contact" className="text-gray-400 hover:text-white">Contact Us</Link></li>
-              <li><Link href="/products/milk-oats-powder" className="text-gray-400 hover:text-white">Milk Oats Powder</Link></li>
-              <li><Link href="/products/milk-tablets" className="text-gray-400 hover:text-white">Milk Tablets</Link></li>
+              <li><Link href="/products" className="text-gray-400 hover:text-white">Our Products</Link></li>
               <li><Link href="/services" className="text-gray-400 hover:text-white">Our Services</Link></li>
             </ul>
           </div>
