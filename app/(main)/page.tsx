@@ -104,6 +104,8 @@ export default function Home() {
   return (
     <>
       <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+        
         :root {
           --cream:     #F7F8FA;
           --cream-mid: #EEF1F6;
@@ -238,7 +240,7 @@ export default function Home() {
           margin-bottom:22px;color:#fff
         }
         .slide-headline em{font-style:italic;color:var(--oat)}
-        .slide-body{font-size:16px;line-height:1.65;color:rgba(255,255,255,.75);max-width:480px;margin-bottom:36px}
+        .slide-body{font-family:'Outfit',sans-serif;font-size:16px;line-height:1.65;color:rgba(255,255,255,.75);max-width:480px;margin-bottom:36px}
         .hero-brand-statement{max-width:620px}
         .hero-years{
           display:block;
@@ -364,7 +366,15 @@ export default function Home() {
           letter-spacing:-.04em;line-height:1;color:var(--ink)
         }
         .section-title em{font-style:italic;color:var(--sage)}
-        .section-sub{color:var(--muted);font-size:16px;max-width:460px;line-height:1.65;margin-top:14px}
+        .section-sub{
+          /* 👇 这句已经改为 Outfit 字体 */
+          font-family:'Outfit',sans-serif;
+          color:var(--muted);
+          font-size:16px;
+          max-width:460px;
+          line-height:1.65;
+          margin-top:14px
+        }
         .section-sub.center{
           max-width:660px;
           margin:18px auto 0;
@@ -503,7 +513,13 @@ export default function Home() {
           font-size:clamp(24px,2.4vw,36px);font-weight:400;letter-spacing:-.03em;
           line-height:1.15;color:var(--ink);margin-bottom:18px
         }
-        .nts-body{font-size:15px;color:var(--muted);line-height:1.7}
+        /* 👇 这里已经改为 Outfit 字体 */
+        .nts-body{
+          font-family:'Outfit',sans-serif;
+          font-size:15px;
+          color:var(--muted);
+          line-height:1.7;
+        }
         .news-capsules{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 16px}
         .news-pill{display:inline-flex;align-items:center;height:28px;padding:0 14px;border-radius:999px;background:var(--sage-soft);color:var(--forest-mid);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
         .news-nav-row{
@@ -589,6 +605,7 @@ export default function Home() {
           color:var(--ink)
         }
         .product-desc{
+          font-family:'Outfit',sans-serif;
           font-size:14px;
           line-height:1.7;
           color:var(--muted)
@@ -648,7 +665,7 @@ export default function Home() {
           line-height:1.55;color:var(--ink);margin-bottom:28px
         }
         .review-divider{width:40px;height:1px;background:var(--oat);margin-bottom:18px}
-        .review-author{font-size:13px;font-weight:500;color:var(--ink)}
+        .review-author{font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--ink)}
         .review-role{font-size:12px;color:var(--muted);margin-top:3px}
         .stars{display:flex;gap:3px;margin-bottom:20px}
         .star{width:14px;height:14px;fill:var(--terracotta)}
@@ -941,7 +958,7 @@ export default function Home() {
               ))}
             </div>
             <span className="review-quote">MILK OAT FLAKES</span>
-            <p className="review-text">These oat flakes are perfect for quick breakfasts. The milk flavour is gentle and not artificial, and the oats stay satisfying for hours. My whole family enjoys them every morning, and I appreciate how clean the ingredient list is.</p>
+            <p className="review-text">The oats themselves are really nice and soften well after soaking, giving a smooth and comforting texture. The flavour is mild overall, which makes it easy to enjoy every day without feeling overly sweet or heavy.</p>
             <div className="review-divider"></div>
             <div className="review-author">Office worker</div>
           </div>
@@ -955,12 +972,12 @@ export default function Home() {
                 </svg>
               ))}
             </div>
-            <span className="review-quote">PURE OATS</span>
-            <p className="review-text">Simple, pure, and reliable. I use these oats daily for porridge, baking, and homemade granola. No added sugar, no weird additives — just honest New‑Zealand‑grown oats. It’s my go‑to staple food now.</p>
+            <span className="review-quote">Quick Oats</span>
+            <p className="review-text">I usually have these oats after the gym or before work when I need something quick and filling. Just hot water and a few minutes, and the texture turns really smooth and comforting. Simple ingredients, easy to prepare, and great for busy mornings.</p>
             <div className="review-divider"></div>
-            <div className="review-author">Active lifestyle user</div>
+            <div className="review-author">Gym-goer</div>
           </div>
-
+          
           {/* 可补充更多评价卡片 */}
         </div>
       </section>
