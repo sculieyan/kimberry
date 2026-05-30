@@ -134,12 +134,12 @@
 .slide2{
   background:
     linear-gradient(90deg,rgba(46,32,12,.48) 0%,rgba(46,32,12,.26) 42%,rgba(46,32,12,.08) 100%),
-    url('/home_picture_02.jpeg') center/cover no-repeat
+    url('/home_picture_02.png') center/cover no-repeat
 }
 .slide3{
   background:
     linear-gradient(90deg,rgba(10,31,45,.50) 0%,rgba(10,31,45,.28) 42%,rgba(10,31,45,.08) 100%),
-    url('/home_picture_03.jpeg') center/cover no-repeat
+    url('/home_picture_03.jpg') center/cover no-repeat
 }
 .slideNoise{
   position:absolute;inset:0;opacity:.04;
@@ -390,8 +390,8 @@
     radial-gradient(circle at 20% 20%,rgba(255,255,255,.14),transparent 30%);
   pointer-events:none
 }
-.ni1{background:linear-gradient(160deg,rgba(20,39,54,.42),rgba(20,39,54,.16)),url('/进博会logo.jpg') center/cover no-repeat}
-.ni2{background:linear-gradient(160deg,rgba(20,39,54,.42),rgba(20,39,54,.16)),url('/山姆2.jpg') center/cover no-repeat}
+.ni1{background:linear-gradient(160deg,rgba(20,39,54,.42),rgba(20,39,54,.16)),url('/CIIE_Logo.jpg') center/cover no-repeat}
+.ni2{background:linear-gradient(160deg,rgba(20,39,54,.42),rgba(20,39,54,.16)),url('/sams_club.jpg') center/cover no-repeat}
 .niLabel{
   font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
   color:rgba(255,255,255,.7);background:rgba(0,0,0,.2);

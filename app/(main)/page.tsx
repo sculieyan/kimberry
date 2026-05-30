@@ -131,22 +131,6 @@ export default function Home() {
                   <h1 className={styles.slideHeadline}>Clean food for <em>modern</em> families.</h1>
                   <p className={styles.slideBody}>Real dairy nutrition, whole oats and natural taste — our recipes stay simple because the best ingredients need nothing added. Trusted by families across New Zealand.</p>
                 </div>
-                <div className={styles.slideVisual}>
-                  <div className={styles.packContainer}>
-                    <div className={styles.packInner}>
-                      <span className={styles.packBadge}>Daily Nutrition</span>
-                      <div className={styles.packName}>Milk Tablets</div>
-                      <div className={styles.packSub}>Convenient · Satisfying · Natural</div>
-                      <div className={styles.packImgPlaceholder}>
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                          <rect x="14" y="10" width="20" height="28" rx="10" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" />
-                          <path d="M20 22h8" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" />
-                        </svg>
-                      </div>
-                      <span className={styles.packTag}>Replace with product photo</span>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Slide 3 */}
@@ -156,21 +140,6 @@ export default function Home() {
                   <div className={styles.slideEyebrow}>Export & Distribution</div>
                   <h1 className={styles.slideHeadline}>Local quality, <em>global</em> reach.</h1>
                   <p className={styles.slideBody}>From New Zealand farms to retail shelves worldwide, Kimberry supports overseas market entry with reliable supply, MPI-compliant documentation and stable distribution coordination.</p>              
-                </div>
-                <div className={styles.slideVisual}>
-                  <div className={styles.packContainer}>
-                    <div className={styles.packInner}>
-                      <span className={styles.packBadge}>MPI Certified</span>
-                      <div className={styles.packName}>Pure Oats</div>
-                      <div className={styles.packSub}>Wholesome · Traceable · Export-ready</div>
-                      <div className={styles.packImgPlaceholder}>
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                          <path d="M24 8v32M16 16c0 0 4-2 8 0s8 0 8 0M16 24c0 0 4-2 8 0s8 0 8 0M16 32c0 0 4-2 8 0s8 0 8 0" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" />
-                        </svg>
-                      </div>
-                      <span className={styles.packTag}>Replace with product photo</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -191,29 +160,29 @@ export default function Home() {
         </section>
 
         {/* NEWS INTRO */}
-        <section className={styles.newsIntroSection}>
+        {/* <section className={styles.newsIntroSection}>
           <div className={`${styles.newsIntroInner} ${styles.reveal}`}>
             <h2>What we've been up to</h2>
           </div>
-        </section>
+        </section> */}
 
         {/* NEWS */}
-        <section className={styles.newsSection} id="news">
-          <div className={styles.newsInner}>
+        {/* <section className={styles.newsSection} id="news">
+          <div className={styles.newsInner}> */}
             {/* Left: image panel */}
-            <div className={styles.newsImgPanel}>
+            {/* <div className={styles.newsImgPanel}>
               <div className={styles.newsImgTrack} ref={newsImgTrackRef}>
                 <div className={`${styles.newsImgSlide} ${styles.ni1}`}><span className={styles.niLabel}>International Exhibition</span></div>
                 <div className={`${styles.newsImgSlide} ${styles.ni2}`}><span className={styles.niLabel}>Premium Retail</span></div>
-              </div>
+              </div> */}
               {/* progress bar */}
-              <div className={styles.newsProgressWrap}>
+              {/* <div className={styles.newsProgressWrap}>
                 <div className={styles.newsProgressBar} ref={newsProgressRef}></div>
               </div>
-            </div>
+            </div> */}
 
             {/* Right: text panel */}
-            <div className={styles.newsTextPanel}>
+            {/* <div className={styles.newsTextPanel}>
               <div className={styles.labelTag}>Latest News from Kimberry</div>
 
               <div className={styles.newsSlidesText} ref={newsTextSlidesRef}>
@@ -252,7 +221,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* PRODUCTS */}
         <section className={styles.productsSection} id="products">
