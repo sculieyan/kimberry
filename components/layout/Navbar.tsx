@@ -62,6 +62,12 @@ export default function Navbar() {
                         </button>
                         <div className="hidden md:flex space-x-8">
                             <Link
+                                href="/"
+                                className={`text-sm font-bold font-josefin ${isActivePath('/') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'}`}
+                            >
+                                Home
+                            </Link>
+                            <Link
                                 href="/products"
                                 className={`text-sm font-bold font-josefin ${isActivePath('/products') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'}`}
                             >
@@ -93,6 +99,13 @@ export default function Navbar() {
                     {isMobileMenuOpen && (
                         <div className="md:hidden mt-4 pb-4">
                             <div className="flex flex-col space-y-4">
+                                <Link
+                                    href="/"
+                                    className={`text-sm font-josefin font-bold ${isActivePath('/') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    Home
+                                </Link>
                                 <Link
                                     href="/products"
                                     className={`text-sm font-josefin font-bold ${isActivePath('/products') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'}`}

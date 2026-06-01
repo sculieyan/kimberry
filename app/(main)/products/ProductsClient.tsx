@@ -78,6 +78,29 @@ export default function HomePage() {
   const productGridRef = useRef<HTMLDivElement>(null);
   const [productIndex, setProductIndex] = useState(0);
 
+  // 监听哈希变化 + 只有带锚点才滚动（你要的最终版）
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      
+      // 只有带哈希才切换 + 滚动
+      if (hash) {
+        if (hash === 'milk-oat-flakes') setActiveCategory('oatmeal');
+        if (hash === 'milk-beans') setActiveCategory('tablets');
+        if (hash === 'quick-oats') setActiveCategory('oats');
+
+        // 只有带 # 锚点才滚动
+        setTimeout(() => {
+          window.scrollBy({ top: 320, behavior: 'smooth' });
+        }, 120);
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       const hero = document.querySelector('.promo-wrap') as HTMLElement;
@@ -116,7 +139,7 @@ export default function HomePage() {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-      <div className="kimberry-products-page">
+      <div className="kimberry-products-page" id="products-top">
         {/* Hero Section */}
         <section className="relative py-10"></section>
 
