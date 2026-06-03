@@ -165,7 +165,7 @@ export default function HomePage() {
             border:1px solid rgba(255,255,255,.32);display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
           .nav.scrolled .nav-cta{background:var(--forest);color:#fff;border-color:var(--forest)}
           .promo-wrap{padding:0;background:#F7F9F6}
-          .promo-banner{min-height:300px;height:40vh;max-height:380px;width:100%;overflow:hidden;position:relative;
+          .promo-banner{min-height:300px;height:42vh;max-height:380px;width:100%;overflow:hidden;position:relative;
             background:linear-gradient(90deg,rgba(13,32,24,.58) 0%,rgba(13,32,24,.28) 44%,rgba(13,32,24,.08) 100%),
                         linear-gradient(135deg,#EAF2E7,#C8DDBF);
             display:flex;align-items:center;padding:92px 6vw 42px}
