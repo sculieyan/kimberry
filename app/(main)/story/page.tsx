@@ -55,7 +55,7 @@ const styles = {
     color: '#fff',
     background: `
       linear-gradient(90deg,rgba(13,32,24,.56) 0%,rgba(28,58,94,.22) 46%,rgba(250,247,239,.06) 100%),
-      url('story_picture.png') center/cover no-repeat,
+      url('/story/story_picture.png') center/cover no-repeat,
       linear-gradient(135deg,#EEF4EA,#D7E5CF)
     `,
     position: 'relative',
@@ -569,7 +569,7 @@ const KimberryOurStory: React.FC = () => {
 
             <div className="brand-block" style={styles.brandBlock}>
               <div className="brand-seal" style={styles.brandSeal}>
-                <img src="oat.png" alt="New Zealand oats" style={styles.brandSealImg} />
+                <img src="/story/oat.png" alt="New Zealand oats" style={styles.brandSealImg} />
               </div>
               <p style={styles.storyContentP}>
                 For over seventeen years, we have focused on making foods built from clean New Zealand ingredients —
