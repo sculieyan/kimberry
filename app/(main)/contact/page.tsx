@@ -1,140 +1,319 @@
-import { Metadata } from 'next';
-import { HeroSection } from '@/components/layout/Utils'
+"use client";
+import React from 'react';
 
-export const metadata: Metadata = {
-    title: 'Contact Kimberry | New Zealand Dairy Products Manufacturer',
-    description: 'Get in touch with Kimberry, your trusted New Zealand dairy manufacturer. Located in Onehunga, Auckland. Email us at info@kimberry.co.nz or call +64 9974 9488 for premium dairy products inquiries.',
-    openGraph: {
-        title: 'Contact Kimberry | Premium Dairy Products Manufacturer',
-        description: 'Connect with Kimberry in Auckland, New Zealand. Reach out for inquiries about our premium dairy products, including oat milk powder and milk tablets.',
-        images: [
-            {
-                url: '/contacts/auckland.jpg',
-                width: 1200,
-                height: 630,
-                alt: 'Kimberry Office in Auckland'
-            }
-        ],
-        url: 'https://www.kimberry.co.nz/contact',
-        siteName: 'Kimberry',
-        locale: 'en_NZ',
-        type: 'website',
-    },
-    keywords: [
-        'Kimberry contact',
-        'dairy manufacturer contact',
-        'Auckland dairy company',
-        'New Zealand dairy contact',
-        'Onehunga business',
-        'premium dairy products',
-        'dairy product inquiries',
-        'Kimberry location',
-        'contact dairy manufacturer',
-        'New Zealand food company'
-    ],
-    alternates: {
-        canonical: 'https://www.kimberry.co.nz/contact'
-    },
-    robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-            index: true,
-            follow: true,
-            'max-image-preview': 'large',
-            'max-snippet': -1,
-        },
-    }
-}
+const KimberryContactUs: React.FC = () => {
+  return (
+    <div className="contact-page">
+      {/* 样式部分 - 在实际项目中建议抽离到单独的 CSS/SCSS 文件 */}
+      <style>{`
+        :root{
+          --ink:#0E1C2E;
+          --muted:#5F6E80;
+          --forest:#1C3A5E;
+          --blue:#0B5D8F;
+          --oat:#C2A15D;
+          --cream:#FAF7EF;
+          --mist:#F7F9F6;
+          --line:rgba(14,28,46,.12);
+          --white:#fff;
+          --shadow:0 24px 70px rgba(28,58,94,.08);
+        }
 
-export default function Contact() {
-    return (
-        <div className="min-h-screen pt-20 dark:bg-white">
-            {/* Hero Section */}
-            <HeroSection title="Contact Us" description="We&apos;d love to hear from you. Get in touch with us." image="/contacts/auckland.jpg" />
+        *{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        @media (prefers-reduced-motion: reduce){
+          *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+        }
+        body{
+          font-family:'Outfit',sans-serif;
+          color:var(--ink);
+          background:#fff;
+          line-height:1.65;
+          -webkit-font-smoothing:antialiased;
+          text-rendering:optimizeLegibility;
+          overflow-x:hidden;
+        }
+        a{text-decoration:none;color:inherit}
+        img{display:block;max-width:100%}
 
-            {/* Contact Information Section */}
-            <section className="py-20 bg-gradient-to-b from-white to-green-50">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-2xl mx-auto">
-                        <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Get in Touch</h2>
-                        
-                        {/* New Zealand Contact Information */}
-                        <div className="space-y-8 mb-12">
-                            <h3 className="text-2xl font-semibold text-gray-800">New Zealand Office</h3>
-                            {/* Office Address */}
-                            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                <div className="flex items-start space-x-6">
-                                    <div className="bg-green-50 p-4 rounded-xl">
-                                        {/* Icon for Office Address */}
-                                        <svg className="w-8 h-8 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </div>
-                                    <div className='font-josefin'>
-                                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Office Address</h3>
-                                        <p className="text-gray-600 text-sm">11/85 Onehunga Mall, Onehunga</p>
-                                        <p className="text-gray-600 text-sm">Auckland 1061, New Zealand</p>
-                                    </div>
-                                </div>
-                            </div>
+        /* HERO */
+        .contact-hero{
+          min-height:300px;
+          height:42vh;
+          max-height:380px;
+          width:100vw;
+          display:flex;
+          align-items:center;
+          padding:92px 6vw 42px;
+          color:#fff;
+          background:
+            linear-gradient(90deg,rgba(13,32,24,.56) 0%,rgba(28,58,94,.22) 46%,rgba(250,247,239,.06) 100%),
+            url('contact_banner.jpeg') center/cover no-repeat,
+            linear-gradient(135deg,#EEF4EA,#D7E5CF);
+          position:relative;
+          overflow:hidden;
+        }
+        .contact-hero::after{
+          content:'';
+          position:absolute;
+          inset:0;
+          background:radial-gradient(circle at 80% 18%,rgba(255,255,255,.20),transparent 28%);
+          pointer-events:none;
+        }
+        .contact-hero-content{
+          position:relative;
+          z-index:1;
+          max-width:580px;
+        }
+        .contact-hero-content span{
+          display:inline-flex;
+          height:30px;
+          padding:0 14px;
+          align-items:center;
+          border-radius:999px;
+          background:rgba(255,255,255,.18);
+          border:1px solid rgba(255,255,255,.24);
+          backdrop-filter:blur(10px);
+          font-size:11px;
+          font-weight:650;
+          letter-spacing:.12em;
+          text-transform:uppercase;
+          margin-bottom:18px;
+        }
+        .contact-hero-content h1{
+          font-family:'Cormorant Garamond',serif;
+          font-size:clamp(36px,4vw,58px);
+          line-height:.96;
+          letter-spacing:-.05em;
+          font-weight:300;
+          margin-bottom:16px;
+        }
+        /* 目标文本改为 Outfit 字体 */
+        .contact-hero-content p{
+          max-width:520px;
+          color:rgba(255,255,255,.84);
+          font-size:14px;
+          line-height:1.65;
+          font-family: 'Outfit', sans-serif;
+        }
 
-                            {/* Email */}
-                            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                <div className="flex items-start space-x-6">
-                                    <div className="bg-green-50 p-4 rounded-xl">
-                                        {/* Icon for Email */}
-                                        <svg className="w-8 h-8 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <div className='font-josefin'>
-                                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Email Us</h3>
-                                        <p className="text-gray-600 text-sm">info@kimberry.co.nz</p>
-                                        <p className="text-gray-600 text-sm">sales@kimberry.co.nz</p>
-                                    </div>
-                                </div>
-                            </div>
+        /* CONTENT */
+        .contact-main{
+          background:
+            radial-gradient(circle at 12% 12%,rgba(194,161,93,.10),transparent 28%),
+            linear-gradient(180deg,#FFFFFF 0%,var(--mist) 100%);
+          padding:74px 6vw 92px;
+        }
+        .contact-intro{
+          max-width:900px;
+          margin:0 auto 48px;
+          text-align:center;
+        }
+        .contact-intro h2{
+          font-family:'Cormorant Garamond',serif;
+          font-size:clamp(42px,5vw,76px);
+          line-height:1;
+          letter-spacing:-.055em;
+          font-weight:300;
+          color:var(--ink);
+          margin-bottom:18px;
+        }
+        .contact-intro h2 em{
+          font: inherit;
+          display: inline-block;
+          transform: skewX(-14deg);
+          margin-left: 0.08em;
+          color:#6F9477;
+        }
+        .contact-intro p{
+          max-width:660px;
+          margin:0 auto;
+          color:var(--muted);
+          font-size:16px;
+          line-height:1.8;
+          font-family: 'Outfit', sans-serif;
+        }
+        .contact-grid{
+          max-width:1080px;
+          margin:0 auto;
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:24px;
+        }
+        .contact-card{
+          background:rgba(255,255,255,.78);
+          border:1px solid rgba(28,58,94,.07);
+          border-radius:34px;
+          padding:42px;
+          box-shadow:0 22px 62px rgba(28,58,94,.055);
+          transition:transform .3s ease, box-shadow .3s ease, background .3s ease;
+        }
+        .contact-card:hover{
+          transform:translateY(-4px);
+          background:#fff;
+          box-shadow:0 30px 78px rgba(28,58,94,.09);
+        }
+        .contact-icon{
+          width:54px;
+          height:54px;
+          border-radius:18px;
+          display:grid;
+          place-items:center;
+          background:var(--forest);
+          color:var(--oat);
+          margin-bottom:28px;
+        }
+        .contact-icon svg{
+          width:24px;height:24px;
+        }
+        .contact-card h3{
+          font-family:'Cormorant Garamond',serif;
+          font-size:38px;
+          line-height:1;
+          font-weight:400;
+          letter-spacing:-.04em;
+          margin-bottom:14px;
+        }
+        .contact-card p{
+          color:var(--muted);
+          font-size:15px;
+          line-height:1.75;
+          margin-bottom:24px;
+          font-family: 'Outfit', sans-serif;
+        }
+        .email-link{
+          display:inline-flex;
+          align-items:center;
+          gap:10px;
+          min-height:46px;
+          padding:0 18px;
+          border-radius:999px;
+          background:var(--forest);
+          color:#fff;
+          font-size:14px;
+          font-weight:650;
+          letter-spacing:.02em;
+          transition:background .2s, transform .2s;
+        }
+        .email-link:hover{
+          background:#2A5282;
+          transform:translateY(-1px);
+        }
 
-                            {/* Phone */}
-                            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                                <div className="flex items-start space-x-6">
-                                    <div className="bg-green-50 p-4 rounded-xl">
-                                        {/* Icon for Phone */}
-                                        <svg className="w-8 h-8 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                        </svg>
-                                    </div>
-                                    <div className='font-josefin'>
-                                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Call Us</h3>
-                                        <p className="text-gray-600 text-sm">+64 9974 9488</p>
-                                        <p className="text-gray-600 text-sm">Monday - Friday, 9am - 6pm</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        .address-text{
+          margin-top:16px;
+          color:var(--muted);
+          font-size:14px;
+          line-height:1.7;
+        }
 
-            {/* Map Section */}
-            <section className="py-20 bg-gray-50">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Find Us</h2>
-                    <div className="h-[400px] rounded-xl overflow-hidden shadow-lg">
-                        <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6378.8128926253175!2d174.78416540741873!3d-36.9284536187574!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6d0d4f6fa23d1257%3A0x85c371ccae3bdaa5!2sKimberry%20Limited!5e0!3m2!1sEN!2snz!4v1732769695570!5m2!1sEN!2snz" 
-                            width="100%" 
-                            height="100%" 
-                            style={{ border: 0 }}  
-                            allowFullScreen 
-                            loading="lazy" 
-                            referrerPolicy="no-referrer-when-downgrade"
-                        ></iframe>
-                    </div>
-                </div>
-            </section>
+        .note-band{
+          max-width:1080px;
+          margin:28px auto 0;
+          padding:28px 34px;
+          border-radius:28px;
+          background:rgba(255,255,255,.62);
+          border:1px solid rgba(28,58,94,.06);
+          display:grid;
+          grid-template-columns:1fr 1fr;
+          gap:18px 36px;
+          align-items:start;
+          color:var(--muted);
+          font-size:14px;
+          line-height:1.8;
+          font-family: 'Outfit', sans-serif;
+        }
+        .note-item strong{
+          color:var(--forest);
+          font-weight:650;
+        }
+        .note-band strong{
+          color:var(--forest);
+          font-weight:650;
+        }
+
+        /* 响应式 */
+        @media(max-width:900px){
+          .contact-grid{grid-template-columns:1fr}
+        }
+        @media(max-width:620px){
+          .contact-hero{min-height:260px;height:auto;max-height:none;padding:82px 28px 34px}
+          .contact-main{padding:54px 6vw 72px}
+          .contact-card{padding:30px}
+      
+          .address-text{
+            margin-top:16px;
+            color:var(--muted);
+            font-size:14px;
+            line-height:1.7;
+          }
+      
+          .note-band{display:block}
+        }
+      `}</style>
+
+      {/* Hero Section */}
+      <section className="relative py-10"></section>
+
+      <section className="contact-hero">
+        <div className="contact-hero-content">
+          <h1>Let’s talk about products, distribution and partnership.</h1>
+          <p>Whether you have questions about our products or want to discuss distribution, our team will direct your enquiry to the right place.</p>
         </div>
-    )
-}
+      </section>
+
+      {/* 主要内容 */}
+      <main className="contact-main">
+        <div className="contact-intro">
+          <h2>How can we <em>help?</em></h2>
+          <p>Please choose the most relevant contact below. This helps us respond faster and make sure your enquiry reaches the right team.</p>
+        </div>
+
+        <div className="contact-grid">
+          <article className="contact-card">
+            <div className="contact-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M4 6.5h16v11H4z" />
+                <path d="M4 7l8 6 8-6" />
+              </svg>
+            </div>
+            <h3>Product Enquiries</h3>
+            <p>If you have questions about Kimberry products, ingredients, specifications or general product information, please contact us here.</p>
+            <a className="email-link" href="mailto:info@Kimberry.co.nz">info@Kimberry.co.nz</a>
+          </article>
+
+          <article className="contact-card">
+            <div className="contact-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M3 7h18" />
+                <path d="M6 7v12h12V7" />
+                <path d="M8 7a4 4 0 0 1 8 0" />
+                <path d="M9 13h6" />
+              </svg>
+            </div>
+            <h3>Distribution & Partnership</h3>
+            <p>For distribution, wholesale, retail listing, export cooperation or product partnership discussions, please contact our sales team.</p>
+            <a className="email-link" href="mailto:sales@kimberry.co.nz">sales@kimberry.co.nz</a>
+          </article>
+        </div>
+
+        <div className="note-band">
+          <div className="note-item">
+            <strong>Kimberry Limited</strong> · Auckland, New Zealand
+          </div>
+          <div className="note-item">
+            <strong>Phone</strong> · +64 9974 9488
+          </div>
+          <div className="note-item">
+            <strong>Address</strong> · 11/85 Onehunga Mall, Onehunga, Auckland 1061, New Zealand
+          </div>
+          <div className="note-item">
+            Warmly welcome you to visit us and feel free to call us anytime for all your inquiries.
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default KimberryContactUs;

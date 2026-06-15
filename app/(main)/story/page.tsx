@@ -540,7 +540,7 @@ const KimberryOurStory: React.FC = () => {
       </style>
 
       {/* Hero Section */}
-        <section className="relative py-10"></section>
+      <section className="relative py-10"></section>
 
       {/* 英雄区 */}
       <section className="story-hero" id="top" style={styles.storyHero}>
