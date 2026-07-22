@@ -222,7 +222,7 @@ const styles = {
 
   brandBlock: {
     display: 'grid',
-    gridTemplateColumns: '132px 1fr',
+    gridTemplateColumns: '290px 1fr',
     gap: '26px',
     alignItems: 'center',
     margin: '22px 0 22px',
@@ -232,8 +232,9 @@ const styles = {
   } as React.CSSProperties,
 
   brandSeal: {
-    width: '118px',
-    height: '118px',
+    width: '298px',
+    // height: '202px',
+    aspectRatio: '3 / 2',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -241,8 +242,6 @@ const styles = {
   } as React.CSSProperties,
 
   brandSealImg: {
-    width: '116px',
-    height: '116px',
     objectFit: 'contain',
     display: 'block',
     filter: 'drop-shadow(0 14px 28px rgba(28,58,94,.06))',
@@ -332,85 +331,6 @@ const styles = {
     background: 'rgba(194, 161, 93, 0.35)', // 已调淡的燕麦金
   } as React.CSSProperties,
 
-  // 响应式样式
-  media900: {
-    storyPage: {
-      padding: '28px 5vw 80px',
-    } as React.CSSProperties,
-    storyLetter: {
-      padding: '50px 38px 58px',
-      borderRadius: '28px',
-    } as React.CSSProperties,
-    storyContent: {
-      maxWidth: 'none',
-    } as React.CSSProperties,
-    brandBlock: {
-      gridTemplateColumns: '1fr',
-      gap: '22px',
-    } as React.CSSProperties,
-  },
-
-  media620: {
-    storyHero: {
-      minHeight: '260px',
-      height: 'auto',
-      maxHeight: 'none',
-      padding: '82px 28px 42px',
-    } as React.CSSProperties,
-    storyHeroContent: {
-      maxWidth: '100%',
-      paddingTop: '12px',
-    } as React.CSSProperties,
-    storyHeroContentH2: {
-      fontSize: '40px',
-      lineHeight: 1.02,
-      maxWidth: '520px',
-    } as React.CSSProperties,
-    storyHeroContentP: {
-      fontSize: '14px',
-    } as React.CSSProperties,
-    storyLetter: {
-      padding: '46px 26px 50px',
-    } as React.CSSProperties,
-    storyTitle: {
-      display: 'block',
-    } as React.CSSProperties,
-    storyKicker: {
-      margin: '0 0 16px',
-      paddingLeft: '36px',
-    } as React.CSSProperties,
-    storyTitleH1: {
-      fontSize: '48px',
-    } as React.CSSProperties,
-    storyContentP: {
-      fontSize: '15px',
-      lineHeight: 1.78,
-    } as React.CSSProperties,
-    storyValuesP: {
-      fontSize: '24px',
-      lineHeight: 1.28,
-    } as React.CSSProperties,
-    storyValuesWrap: {
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-      gap: '16px',
-    } as React.CSSProperties,
-    storyValuesSeal: {
-      width: '110px',
-      height: '110px',
-    } as React.CSSProperties,
-    storyValuesSealSpan: {
-      fontSize: '14px',
-    } as React.CSSProperties,
-    brandSeal: {
-      width: '118px',
-      height: '118px',
-    } as React.CSSProperties,
-    brandSealImg: {
-      width: '116px',
-      height: '116px',
-    } as React.CSSProperties,
-  },
 };
 
 // 核心组件
@@ -471,8 +391,8 @@ const KimberryOurStory: React.FC = () => {
               max-width: none;
             }
             .brand-block {
-              grid-template-columns: 1fr;
-              gap: 22px;
+              grid-template-columns: 1fr !important;
+              gap: 12px !important;
             }
           }
           @media (max-width: 620px) {
@@ -528,12 +448,11 @@ const KimberryOurStory: React.FC = () => {
               fontSize: 14px;
             }
             .brand-seal {
-              width: 118px;
-              height: 118px;
+              width: 100%;
+              max-width: 270px; /* 限制图片最大宽度，不会宽到溢出很难看，可自行调整 */
             }
             .brand-seal img {
-              width: 116px;
-              height: 116px;
+              width: 100%;
             }
           }
         `}
@@ -569,7 +488,12 @@ const KimberryOurStory: React.FC = () => {
 
             <div className="brand-block" style={styles.brandBlock}>
               <div className="brand-seal" style={styles.brandSeal}>
-                <img src="/story/oat.png" alt="New Zealand oats" style={styles.brandSealImg} />
+                <img
+                  src="/story/Harvest03.webp"
+                  alt="New Zealand oats"
+                  style={styles.brandSealImg}
+                  className="transform transition-all duration-700 ease-out hover:scale-110 hover:-rotate-2 hover:z-30 group-hover:translate-y-5"
+                />
               </div>
               <p style={styles.storyContentP}>
                 For over seventeen years, we have focused on making foods built from clean New Zealand ingredients —
