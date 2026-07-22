@@ -613,9 +613,8 @@ const KimberryOurStory: React.FC = () => {
             </p>
 
             <p style={styles.storyContentP}>
-              Everything is proudly made in New Zealand, using selected local ingredients and trusted food production
-              standards. We avoid artificial colours, preservatives and unnecessary additives because we believe everyday
-              foods should feel calm, clean and reassuring.
+              Everything is proudly made in New Zealand, using selected local ingredients and trusted food production standards. 
+              We avoid complex processing because we believe everyday foods should feel calm, clean and reassuring.
             </p>
 
             <p style={styles.storyContentP}>
