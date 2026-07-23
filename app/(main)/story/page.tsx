@@ -274,7 +274,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: '26px',
-    margin: '8px 0 2px',
+    margin: '8px 0 0',
   } as React.CSSProperties,
 
   // 方形图片容器
@@ -283,7 +283,8 @@ const styles = {
     width: '298px',
     overflow: 'visible',
     boxShadow: '0 18px 42px rgba(28,58,94,.04)',
-    marginBottom: '24px',
+    transform: 'translateY(-42px)',
+    marginBottom: 0,
   } as React.CSSProperties,
 
   storyValuesImage: {
@@ -429,13 +430,14 @@ const KimberryOurStory: React.FC = () => {
             .story-values-wrap {
               flex-direction: column;
               align-items: flex-start;
-              gap: 16px;
+              gap: 14px;
             }
             .story-values-image-wrap {
               width: 100% !important;
               max-width: 260px;
               height: auto !important;
-              // aspect-ratio: 16 / 10;
+              transform: translateY(-18px) !important;
+              margin-bottom: 2px !important;
             }
             .brand-seal {
               width: 100%;
@@ -508,6 +510,13 @@ const KimberryOurStory: React.FC = () => {
                     And the patience to make simple things properly.
                   </span>
                 </p>
+                <p style={{ ...styles.storyContentP, marginTop: '22px' }}>
+                  That philosophy continues to guide us today.
+                </p>
+                <p style={styles.storyContentP}>
+                  From creamy milk oat flakes to milk-based snacks and pure oats, every Kimberry product is designed
+                  around comfort, simplicity and daily trust — foods made to be enjoyed regularly, not occasionally.
+                </p>
               </div>
 
               {/* 方形图片 kimberry-office.jpg */}
@@ -521,14 +530,7 @@ const KimberryOurStory: React.FC = () => {
               </div>
             </div>
 
-            <p style={styles.storyContentP}>That philosophy continues to guide us today.</p>
-
-            <p style={styles.storyContentP}>
-              From creamy milk oat flakes to milk-based snacks and pure oats, every Kimberry product is designed around
-              comfort, simplicity and daily trust — foods made to be enjoyed regularly, not occasionally.
-            </p>
-
-            <p style={styles.storyContentP}>
+            <p style={{ ...styles.storyContentP, marginTop: '-2px' }}>
               Everything is proudly made in New Zealand, using selected local ingredients and trusted food production standards.
               We avoid complex processing because we believe everyday foods should feel calm, clean and reassuring.
             </p>
