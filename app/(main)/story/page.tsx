@@ -234,7 +234,7 @@ const styles = {
   brandSeal: {
     width: '298px',
     // height: '202px',
-    aspectRatio: '3 / 2',
+    // aspectRatio: '3 / 2',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -245,6 +245,7 @@ const styles = {
     objectFit: 'contain',
     display: 'block',
     filter: 'drop-shadow(0 14px 28px rgba(28,58,94,.06))',
+    borderRadius: '8px',
   } as React.CSSProperties,
 
   storyValues: {
@@ -276,29 +277,19 @@ const styles = {
     margin: '8px 0 2px',
   } as React.CSSProperties,
 
-  storyValuesSeal: {
+  // 方形图片容器
+  storyValuesImageWrap: {
     flexShrink: 0,
-    width: '118px',
-    height: '118px',
-    borderRadius: '50%',
-    border: '1px solid rgba(200,169,110,.32)',
-    background: 'radial-gradient(circle at 50% 34%,rgba(255,255,255,.95),rgba(250,247,239,.88) 58%,rgba(200,169,110,.12) 100%)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
+    width: '298px',
+    overflow: 'visible',
     boxShadow: '0 18px 42px rgba(28,58,94,.04)',
-    padding: '14px',
+    marginBottom: '24px',
   } as React.CSSProperties,
 
-  storyValuesSealSpan: {
-    fontFamily: "'Cormorant Garamond', serif",
-    fontSize: '15px',
-    lineHeight: 1.05,
-    letterSpacing: '-0.03em',
-    color: 'var(--forest)',
-    fontStyle: 'italic',
+  storyValuesImage: {
+    objectFit: 'cover',
     display: 'block',
+    borderRadius: '8px',
   } as React.CSSProperties,
 
   closingLine: {
@@ -337,7 +328,7 @@ const styles = {
 const KimberryOurStory: React.FC = () => {
   return (
     <div style={styles.rootVars}>
-      {/* 全局样式注入（已删除多余story-signature伪类） */}
+      {/* 全局样式注入 */}
       <style>
         {`
           * {
@@ -440,16 +431,15 @@ const KimberryOurStory: React.FC = () => {
               align-items: flex-start;
               gap: 16px;
             }
-            .story-values-seal {
-              width: 110px;
-              height: 110px;
-            }
-            .story-values-seal span {
-              fontSize: 14px;
+            .story-values-image-wrap {
+              width: 100% !important;
+              max-width: 260px;
+              height: auto !important;
+              // aspect-ratio: 16 / 10;
             }
             .brand-seal {
               width: 100%;
-              max-width: 270px; /* 限制图片最大宽度，不会宽到溢出很难看，可自行调整 */
+              max-width: 260px; /* 限制图片最大宽度，不会宽到溢出很难看，可自行调整 */
             }
             .brand-seal img {
               width: 100%;
@@ -520,12 +510,14 @@ const KimberryOurStory: React.FC = () => {
                 </p>
               </div>
 
-              <div className="story-values-seal" style={styles.storyValuesSeal}>
-                <span style={styles.storyValuesSealSpan}>
-                  Quietly<br />
-                  crafted<br />
-                  in New Zealand
-                </span>
+              {/* 方形图片 kimberry-office.jpg */}
+              <div className="story-values-image-wrap" style={styles.storyValuesImageWrap}>
+                <img
+                  src="/story/kimberry-office.jpg"
+                  alt="Kimberry office"
+                  style={styles.storyValuesImage}
+                  className="transform transition-all duration-700 ease-out hover:scale-110 hover:rotate-2 hover:z-30 group-hover:translate-x-5"
+                />
               </div>
             </div>
 
@@ -537,7 +529,7 @@ const KimberryOurStory: React.FC = () => {
             </p>
 
             <p style={styles.storyContentP}>
-              Everything is proudly made in New Zealand, using selected local ingredients and trusted food production standards. 
+              Everything is proudly made in New Zealand, using selected local ingredients and trusted food production standards.
               We avoid complex processing because we believe everyday foods should feel calm, clean and reassuring.
             </p>
 
