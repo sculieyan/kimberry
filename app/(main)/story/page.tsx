@@ -283,7 +283,7 @@ const styles = {
     width: '298px',
     overflow: 'visible',
     boxShadow: '0 18px 42px rgba(28,58,94,.04)',
-    transform: 'translateY(-42px)',
+    transform: 'translateY(-32px)',
     marginBottom: 0,
   } as React.CSSProperties,
 
