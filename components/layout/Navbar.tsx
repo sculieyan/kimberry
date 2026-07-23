@@ -74,18 +74,11 @@ export default function Navbar() {
                                 Our Products
                             </Link>
                             <Link
-                                href="/services"
-                                className={`text-sm font-bold font-josefin ${isActivePath('/services') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'
-                                    }`}
-                            >
-                                Our Services
-                            </Link>
-                            <Link
-                                href="/about"
+                                href="/story"
                                 className={`text-sm font-bold font-josefin ${isActivePath('/about') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'
                                     }`}
                             >
-                                About Us
+                                Our Story
                             </Link>
                             <Link
                                 href="/contact"
@@ -114,18 +107,11 @@ export default function Navbar() {
                                     Our Products
                                 </Link>
                                 <Link
-                                    href="/services"
-                                    className={`text-sm font-josefin font-bold ${isActivePath('/services') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'}`}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    Our Services
-                                </Link>
-                                <Link
-                                    href="/about"
+                                    href="/story"
                                     className={`text-sm font-josefin font-bold ${isActivePath('/about') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'}`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                    About Us
+                                    Our Story
                                 </Link>
                                 <Link
                                     href="/contact"
