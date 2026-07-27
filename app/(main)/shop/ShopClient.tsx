@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { NZ_REGIONS } from '@/lib/nz-locations';
 
 /* ------------------------------------------------------------------ */
 /*  Product data — mirrors KB_PRODUCTS from the reference shop.js      */
@@ -145,6 +146,17 @@ export default function ShopPage() {
 
   const updateForm = (key: keyof typeof form, value: string | boolean) =>
     setForm(prev => ({ ...prev, [key]: value }));
+
+  /* ---- region / city selects: picking a city auto-fills its central postcode ---- */
+  const selectedRegion = NZ_REGIONS.find(r => r.name === form.region) || null;
+
+  const onRegionChange = (region: string) =>
+    setForm(prev => ({ ...prev, region, city: '', postcode: '' }));
+
+  const onCityChange = (city: string) => {
+    const match = selectedRegion?.cities.find(c => c.name === city);
+    setForm(prev => ({ ...prev, city, postcode: match?.postcode || prev.postcode }));
+  };
 
   const resetForm = () => setForm({
     email: '', firstName: '', lastName: '',
@@ -426,6 +438,11 @@ export default function ShopPage() {
         .kb-shop .field>label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.02em}
         .kb-shop .field input{height:46px;border:1px solid rgba(28,58,94,.16);border-radius:10px;padding:0 14px;font-size:14px;font-family:inherit;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;background:#fff}
         .kb-shop .field input:focus{border-color:var(--oat);box-shadow:0 0 0 3px rgba(200,169,110,.14)}
+        .kb-shop .field select{height:46px;border:1px solid rgba(28,58,94,.16);border-radius:10px;padding:0 34px 0 14px;font-size:14px;font-family:inherit;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;cursor:pointer;appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2368788E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center}
+        .kb-shop .field select:focus{border-color:var(--oat);box-shadow:0 0 0 3px rgba(200,169,110,.14)}
+        .kb-shop .field select.placeholder{color:#9AA5B1}
+        .kb-shop .field select:disabled{background-color:#F5F6F8;color:#9AA5B1;cursor:not-allowed}
+        .kb-shop .auto-fill-tag{margin-left:6px;font-size:10px;font-weight:500;color:var(--oat);letter-spacing:.02em}
         .kb-shop .marketing-consent{display:flex;align-items:flex-start;gap:8px;margin-top:8px;font-size:12px;color:var(--muted);font-weight:400;line-height:1.5}
         .kb-shop .marketing-consent input{width:auto;height:auto;margin-top:2px}
         .kb-shop .method-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid rgba(28,58,94,.12);border-radius:14px;background:#fff}
@@ -686,15 +703,34 @@ export default function ShopPage() {
                           <input required value={form.address} onChange={e => updateForm('address', e.target.value)} placeholder="Your NZ delivery address" autoComplete="street-address" />
                         </div>
                         <div className="field">
-                          <label>City</label>
-                          <input required value={form.city} onChange={e => updateForm('city', e.target.value)} autoComplete="address-level2" />
-                        </div>
-                        <div className="field">
                           <label>Region</label>
-                          <input required value={form.region} onChange={e => updateForm('region', e.target.value)} autoComplete="address-level1" />
+                          <select
+                            required
+                            value={form.region}
+                            onChange={e => onRegionChange(e.target.value)}
+                            className={form.region ? '' : 'placeholder'}
+                            autoComplete="address-level1"
+                          >
+                            <option value="" disabled>Select region</option>
+                            {NZ_REGIONS.map(r => <option key={r.name} value={r.name}>{r.name}</option>)}
+                          </select>
                         </div>
                         <div className="field">
-                          <label>Postcode</label>
+                          <label>City</label>
+                          <select
+                            required
+                            value={form.city}
+                            onChange={e => onCityChange(e.target.value)}
+                            disabled={!selectedRegion}
+                            className={form.city ? '' : 'placeholder'}
+                            autoComplete="address-level2"
+                          >
+                            <option value="" disabled>{selectedRegion ? 'Select city' : 'Select a region first'}</option>
+                            {selectedRegion?.cities.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                          </select>
+                        </div>
+                        <div className="field">
+                          <label>Postcode <span className="auto-fill-tag">auto-filled from city</span></label>
                           <input required value={form.postcode} onChange={e => updateForm('postcode', e.target.value)} autoComplete="postal-code" />
                         </div>
                         <div className="field">
