@@ -310,7 +310,7 @@ export default function ShopPage() {
         .kb-shop a{text-decoration:none;color:inherit}
 
         /* hero */
-        .kb-shop .hero{padding:120px 6vw 62px;background:linear-gradient(135deg,#F6F9FC,#F7F2E8);position:relative;overflow:hidden}
+        .kb-shop .hero{padding:28px 6vw 18px;background:linear-gradient(135deg,#F6F9FC,#F7F2E8);position:relative;overflow:hidden}
         .kb-shop .hero:after{content:'';position:absolute;width:420px;height:420px;border-radius:50%;right:-110px;top:-180px;background:rgba(200,169,110,.18)}
         .kb-shop .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--forest);font-weight:600}
         .kb-shop .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(46px,5vw,68px);font-weight:400;line-height:.95;letter-spacing:-.04em;max-width:720px;margin:15px 0 12px}
@@ -495,7 +495,7 @@ export default function ShopPage() {
           .kb-shop .section-head p{text-align:left}
         }
         @media(max-width:620px){
-          .kb-shop .hero{padding:100px 20px 40px}
+          .kb-shop .hero{padding:28px 20px 18px}
           .kb-shop .hero h1{font-size:44px}
           .kb-shop .shop-wrap{padding:36px 20px 24px}
           .kb-shop .products-grid{grid-template-columns:1fr}
@@ -514,6 +514,9 @@ export default function ShopPage() {
           .kb-shop .checkout-aside{padding:22px}
         }
       `}</style>
+
+      {/* Hero Section */}
+      <section className="relative py-10"></section>
 
       <div className="kb-shop">
         {/* ---- Hero ---- */}
