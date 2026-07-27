@@ -87,6 +87,12 @@ export default function Navbar() {
                             >
                                 Contact Us
                             </Link>
+                            <Link
+                                href="/shop"
+                                className={`text-sm font-bold font-josefin ${isActivePath('/shop') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'}`}
+                            >
+                                Shop
+                            </Link>
                         </div>
                     </div>
                     {isMobileMenuOpen && (
@@ -119,6 +125,13 @@ export default function Navbar() {
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     Contact Us
+                                </Link>
+                                <Link
+                                    href="/shop"
+                                    className={`text-sm font-josefin font-bold ${isActivePath('/shop') ? 'text-green-700' : 'text-gray-700 hover:text-green-700'}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    Shop
                                 </Link>
                             </div>
                         </div>
