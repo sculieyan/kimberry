@@ -33,6 +33,18 @@ const CART_KEY = 'kimberry_cart_v3';
 
 interface CartLine { id: string; qty: number; }
 
+/* NZ Post rate option — mirrors the /api/nzpost/rates response shape */
+interface RateOption {
+  id: string;
+  product: string;
+  description: string;
+  speed: string;
+  price: number;
+  code: string;
+}
+
+const isValidNzPostcode = (postcode: string) => /^\d{4}$/.test(postcode.trim());
+
 const money = (n: number) => new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD' }).format(Number(n || 0));
 
 /* ------------------------------------------------------------------ */
@@ -52,6 +64,12 @@ export default function ShopPage() {
   const [checkoutItems, setCheckoutItems] = useState<CartLine[]>([]);
   const [checkoutSource, setCheckoutSource] = useState<'buy-now' | 'basket'>('buy-now');
   const [orderPlaced, setOrderPlaced] = useState<string | null>(null);
+  // NZ Post delivery options (fetched once a valid postcode is entered)
+  const [rateOptions, setRateOptions] = useState<RateOption[]>([]);
+  const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
+  const [ratesLoading, setRatesLoading] = useState(false);
+  const [ratesError, setRatesError] = useState<string | null>(null);
+  const [ratesDemo, setRatesDemo] = useState(false);
   const [form, setForm] = useState({
     email: '', firstName: '', lastName: '',
     address: '', city: '', region: '', postcode: '', phone: '',
@@ -111,6 +129,7 @@ export default function ShopPage() {
     setCheckoutItems([{ id, qty: Math.max(1, qty) }]);
     setCheckoutSource('buy-now');
     setOrderPlaced(null);
+    resetRates();
     setCheckoutOpen(true);
   };
 
@@ -119,6 +138,7 @@ export default function ShopPage() {
     setCheckoutItems(cart);
     setCheckoutSource('basket');
     setOrderPlaced(null);
+    resetRates();
     setCheckoutOpen(true);
     setDrawerOpen(false);
   };
@@ -132,10 +152,19 @@ export default function ShopPage() {
     marketingConsent: false, terms: false,
   });
 
+  const resetRates = () => {
+    setRateOptions([]);
+    setSelectedRateId(null);
+    setRatesLoading(false);
+    setRatesError(null);
+    setRatesDemo(false);
+  };
+
   const closeCheckout = () => {
     setCheckoutOpen(false);
     setOrderPlaced(null);
     resetForm();
+    resetRates();
   };
 
   const submitCheckout = (e: FormEvent<HTMLFormElement>) => {
@@ -174,6 +203,12 @@ export default function ShopPage() {
     .filter(x => x.id);
   const checkoutSubtotal = checkoutDetails.reduce((s, x) => s + x.price * x.qty, 0);
   const checkoutAllFreeShipping = checkoutDetails.length > 0 && checkoutDetails.every(x => x.freeShipping);
+  const checkoutWeightGrams = checkoutDetails.reduce((s, x) => s + x.weightGrams * x.qty, 0);
+  // Chargeable weight excludes free-shipping items (they ship free of charge)
+  const chargeableWeightGrams = checkoutDetails.reduce((s, x) => s + (x.freeShipping ? 0 : x.weightGrams * x.qty), 0);
+  const selectedRate = rateOptions.find(o => o.id === selectedRateId) || null;
+  const shippingCost = checkoutAllFreeShipping ? 0 : selectedRate?.price ?? null;
+  const checkoutTotal = checkoutSubtotal + (shippingCost ?? 0);
 
   /* ---- escape closes checkout, then drawer ---- */
   useEffect(() => {
@@ -190,6 +225,58 @@ export default function ShopPage() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [checkoutOpen, drawerOpen]);
+
+  /* ---- fetch NZ Post rates once a valid 4-digit postcode is entered ----
+     Free-shipping orders also fetch options (displayed as FREE) so the
+     customer can still compare service levels. Mixed carts are quoted on
+     chargeable weight only (free-shipping items don't add shipping cost). */
+  useEffect(() => {
+    if (!checkoutOpen) return;
+    const postcode = form.postcode.trim();
+    const quoteWeightGrams = checkoutAllFreeShipping ? checkoutWeightGrams : chargeableWeightGrams;
+    if (!isValidNzPostcode(postcode) || quoteWeightGrams <= 0) {
+      setRateOptions([]);
+      setSelectedRateId(null);
+      setRatesError(null);
+      setRatesLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setRatesLoading(true);
+    setRatesError(null);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/nzpost/rates?postcode=${encodeURIComponent(postcode)}&weight=${Math.round(quoteWeightGrams)}&value=${checkoutSubtotal.toFixed(2)}`
+        );
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.success && Array.isArray(data.options) && data.options.length > 0) {
+          setRateOptions(data.options);
+          setSelectedRateId(prev =>
+            prev && data.options.some((o: RateOption) => o.id === prev) ? prev : data.options[0].id
+          );
+          setRatesDemo(Boolean(data.demo));
+          setRatesError(null);
+        } else {
+          setRateOptions([]);
+          setSelectedRateId(null);
+          setRatesError(data.error || 'No NZ Post delivery options available for this address.');
+        }
+      } catch {
+        if (!cancelled) {
+          setRateOptions([]);
+          setSelectedRateId(null);
+          setRatesError('Could not reach the NZ Post rate service — please try again.');
+        }
+      } finally {
+        if (!cancelled) setRatesLoading(false);
+      }
+    }, 400);
+
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [checkoutOpen, checkoutAllFreeShipping, form.postcode, checkoutWeightGrams, chargeableWeightGrams, checkoutSubtotal]);
 
   return (
     <>
@@ -346,6 +433,18 @@ export default function ShopPage() {
         .kb-shop .method-card b{display:block;font-size:14px;color:var(--ink)}
         .kb-shop .method-card small{display:block;font-size:12px;color:var(--muted)}
         .kb-shop .method-card .method-price{margin-left:auto;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--forest)}
+        .kb-shop .method-options{display:flex;flex-direction:column;gap:10px}
+        .kb-shop .method-card.selectable{cursor:pointer;transition:border-color .2s,box-shadow .2s;text-align:left;width:100%;font-family:inherit;font-size:inherit}
+        .kb-shop .method-card.selectable:hover{border-color:rgba(28,58,94,.30)}
+        .kb-shop .method-card.selected{border-color:var(--forest);box-shadow:0 0 0 3px rgba(28,58,94,.10)}
+        .kb-shop .method-radio{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;border:2px solid rgba(28,58,94,.30);flex-shrink:0}
+        .kb-shop .method-card.selected .method-radio{border-color:var(--forest)}
+        .kb-shop .method-card.selected .method-radio:after{content:'';width:8px;height:8px;border-radius:50%;background:var(--forest)}
+        .kb-shop .method-speed{display:block;font-size:11px;color:var(--green);font-weight:600;margin-top:3px}
+        .kb-shop .method-hint{padding:14px 16px;border:1px dashed rgba(28,58,94,.18);border-radius:14px;font-size:13px;color:var(--muted);background:var(--blue-soft);line-height:1.5}
+        .kb-shop .method-note{margin-bottom:10px}
+        .kb-shop .method-error{padding:14px 16px;border:1px solid rgba(182,69,63,.35);border-radius:14px;font-size:13px;color:var(--red);background:#FBF1F0;line-height:1.5}
+        .kb-shop .demo-badge{display:inline-block;margin-left:auto;padding:4px 9px;border-radius:999px;background:var(--oat);color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em}
         .kb-shop .pay-note{padding:16px;border:1px dashed rgba(28,58,94,.18);border-radius:14px;background:var(--oat-soft);font-size:13px;color:var(--forest);line-height:1.5}
         .kb-shop .summary-list{margin-bottom:18px}
         .kb-shop .summary-line-item{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(28,58,94,.08)}
@@ -361,6 +460,7 @@ export default function ShopPage() {
         .kb-shop .terms input{width:auto;height:auto;margin-top:2px}
         .kb-shop .place-order{width:100%;border:0;border-radius:12px;background:var(--forest);color:#fff;padding:15px;cursor:pointer;font-size:14px;font-weight:700;letter-spacing:.04em;transition:background .2s}
         .kb-shop .place-order:hover{background:var(--forest-mid)}
+        .kb-shop .place-order:disabled{opacity:.5;cursor:not-allowed}
         .kb-shop .secure-note{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5}
         .kb-shop .success-state{text-align:center;padding:48px 28px}
         .kb-shop .success-state .check{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--green);color:#fff;font-size:36px;margin:0 auto 20px;box-shadow:0 12px 30px rgba(35,93,69,.25)}
@@ -605,15 +705,53 @@ export default function ShopPage() {
                     </div>
 
                     <div className="step-card">
-                      <div className="step-head"><span className="step-no">2</span><h3>Delivery method</h3></div>
-                      <div className="method-card">
-                        <span className="method-icon">NZ</span>
-                        <span>
-                          <b>NZ Post delivery</b>
-                          <small>{checkoutAllFreeShipping ? 'Includes free-shipping product(s) — delivered free.' : 'Delivery calculated at the next step.'}</small>
-                        </span>
-                        <span className="method-price">{checkoutAllFreeShipping ? 'FREE' : '—'}</span>
+                      <div className="step-head">
+                        <span className="step-no">2</span><h3>Delivery method</h3>
+                        {ratesDemo && rateOptions.length > 0 && <span className="demo-badge">NZ POST DEMO RATES</span>}
                       </div>
+                      {!isValidNzPostcode(form.postcode) ? (
+                        checkoutAllFreeShipping ? (
+                          <div className="method-card">
+                            <span className="method-icon">NZ</span>
+                            <span>
+                              <b>NZ Post delivery</b>
+                              <small>Free shipping applies — delivered free. Enter your postcode to compare NZ Post service levels.</small>
+                            </span>
+                            <span className="method-price">FREE</span>
+                          </div>
+                        ) : (
+                          <div className="method-hint">Enter your 4-digit NZ postcode in Step 1 to see NZ Post delivery options and prices.</div>
+                        )
+                      ) : ratesLoading ? (
+                        <div className="method-hint">Fetching NZ Post rates for {form.postcode.trim()}…</div>
+                      ) : ratesError ? (
+                        <div className="method-error">{ratesError}</div>
+                      ) : rateOptions.length > 0 ? (
+                        <>
+                          {checkoutAllFreeShipping && (
+                            <div className="method-hint method-note">Free shipping applies — every NZ Post service level is free on this order.</div>
+                          )}
+                          <div className="method-options">
+                            {rateOptions.map(o => (
+                              <button
+                                type="button"
+                                key={o.id}
+                                className={`method-card selectable ${selectedRateId === o.id ? 'selected' : ''}`}
+                                onClick={() => setSelectedRateId(o.id)}
+                                aria-pressed={selectedRateId === o.id}
+                              >
+                                <span className="method-radio" aria-hidden="true" />
+                                <span>
+                                  <b>{o.product}</b>
+                                  <small>{o.description}</small>
+                                  <span className="method-speed">{o.speed}</span>
+                                </span>
+                                <span className="method-price">{checkoutAllFreeShipping ? 'FREE' : money(o.price)}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      ) : null}
                     </div>
 
                     <div className="step-card">
@@ -625,8 +763,13 @@ export default function ShopPage() {
                       <input type="checkbox" required checked={form.terms} onChange={e => updateForm('terms', e.target.checked)} />
                       <span>I agree to Kimberry’s terms, privacy policy and delivery conditions.</span>
                     </label>
-                    <button className="place-order" type="submit">Place order · {money(checkoutSubtotal)}</button>
-                    <p className="secure-note">Demo checkout — no real payment will be processed.</p>
+                    <button className="place-order" type="submit" disabled={!checkoutAllFreeShipping && !selectedRate}>
+                      Place order · {money(checkoutTotal)}
+                    </button>
+                    <p className="secure-note">
+                      Demo checkout — no real payment will be processed.
+                      {ratesDemo && ' NZ Post demo rates shown — configure NZPOST_API_KEY on the server for live quotes.'}
+                    </p>
                   </form>
 
                   <aside className="checkout-aside">
@@ -644,8 +787,11 @@ export default function ShopPage() {
                     </div>
                     <div className="summary-totals">
                       <div className="row"><span>Subtotal</span><span>{money(checkoutSubtotal)}</span></div>
-                      <div className="row"><span>Delivery</span><span>{checkoutAllFreeShipping ? 'FREE' : 'Calculated at checkout'}</span></div>
-                      <div className="row grand"><span>Total</span><b>{money(checkoutSubtotal)}</b></div>
+                      <div className="row">
+                        <span>Delivery{selectedRate ? ` · ${selectedRate.code}` : ''}</span>
+                        <span>{checkoutAllFreeShipping ? 'FREE' : shippingCost !== null ? money(shippingCost) : 'Enter postcode'}</span>
+                      </div>
+                      <div className="row grand"><span>Total</span><b>{money(checkoutTotal)}</b></div>
                     </div>
                   </aside>
                 </div>
