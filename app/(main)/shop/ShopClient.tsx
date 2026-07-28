@@ -315,8 +315,8 @@ export default function ShopPage() {
         .kb-shop .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--forest);font-weight:600}
         .kb-shop .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(46px,5vw,68px);font-weight:400;line-height:.95;letter-spacing:-.04em;max-width:720px;margin:8px 0 12px}
         .kb-shop .hero h1 em{color:var(--oat);font-weight:300;font-style:italic}
-        .kb-shop .hero p{max-width:650px;color:var(--muted);font-size:17px}
-        .kb-shop .trust-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+        .kb-shop .hero p{max-width:650px;color:var(--muted);font-size:16px}
+        .kb-shop .trust-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
         .kb-shop .trust-pill{padding:9px 13px;border:1px solid rgba(28,58,94,.13);border-radius:999px;background:rgba(255,255,255,.72);font-size:12px;color:var(--forest);font-weight:400}
 
         /* support bar */
