@@ -317,7 +317,7 @@ export default function ShopPage() {
         .kb-shop .hero h1 em{color:var(--oat);font-weight:300;font-style:italic}
         .kb-shop .hero p{max-width:650px;color:var(--muted);font-size:17px}
         .kb-shop .trust-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
-        .kb-shop .trust-pill{padding:9px 13px;border:1px solid rgba(28,58,94,.13);border-radius:999px;font-size:13px;color:var(--forest);font-weight:500}
+        .kb-shop .trust-pill{padding:9px 13px;border:1px solid rgba(28,58,94,.13);border-radius:999px;background:rgba(255,255,255,.72);font-size:12px;color:var(--forest);font-weight:400}
 
         /* support bar */
         .kb-shop .shop-support-bar{min-height:52px;padding:10px 6vw;display:flex;align-items:center;justify-content:flex-end;gap:12px;border-bottom:1px solid var(--line);background:#fff;color:var(--muted);font-size:13px}
