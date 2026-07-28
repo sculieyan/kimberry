@@ -2,35 +2,12 @@
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { NZ_REGIONS } from '@/lib/nz-locations';
-
-/* ------------------------------------------------------------------ */
-/*  Product data — mirrors KB_PRODUCTS from the reference shop.js      */
-/* ------------------------------------------------------------------ */
-interface Product {
-  id: string;
-  category: string;
-  name: string;
-  size: string;
-  originalPrice: number;
-  price: number;
-  weightGrams: number;
-  freeShipping?: boolean;
-  image: string;
-  desc: string;
-}
-
-const PRODUCTS: Product[] = [
-  { id: 'oat-unsweetened', category: 'Milk Oat Flakes', name: 'Unsweetened', size: '400g · 10 sachets', originalPrice: 24.90, price: 19.90, weightGrams: 400, freeShipping: true, image: '/products/unsweetened_milk_oats.png', desc: 'A clean oat and milk base for a naturally simple everyday breakfast.' },
-  { id: 'oat-classic', category: 'Milk Oat Flakes', name: 'Classic', size: '400g · 10 sachets', originalPrice: 24.90, price: 19.90, weightGrams: 400, image: '/products/classic_milk_oatmeal_front.png', desc: 'Lightly sweetened with creamy New Zealand milk and natural oat texture.' },
-  { id: 'oat-coconut', category: 'Milk Oat Flakes', name: 'Coconut', size: '400g · 10 sachets', originalPrice: 26.90, price: 21.90, weightGrams: 400, image: '/products/unsweetened_milk_oats.png', desc: 'Creamy oats with a gentle coconut finish for a softer tropical profile.' },
-  { id: 'bean-dark', category: 'Milk Beans', name: 'Dark Chocolate Chips', size: '150g', originalPrice: 18.90, price: 15.90, weightGrams: 150, image: '/products/milk_beans_front.png', desc: 'Creamy milk bites balanced with crisp dark chocolate pieces.' },
-  { id: 'bean-coconut', category: 'Milk Beans', name: 'Coconut', size: '150g', originalPrice: 18.90, price: 15.90, weightGrams: 150, image: '/products/milk_beans_front.png', desc: 'Smooth dairy flavour with gentle coconut notes for everyday snacking.' },
-  { id: 'quick-oats', category: 'Quick Oats', name: 'Original', size: '800g', originalPrice: 15.90, price: 12.90, weightGrams: 800, freeShipping: true, image: '/products/oats_front.png', desc: '100% wholegrain oats for porridge, overnight oats, smoothies and baking.' },
-];
+import { PRODUCTS } from '@/lib/products';
 
 const CATEGORIES = ['All products', 'Milk Oat Flakes', 'Milk Beans', 'Quick Oats'] as const;
 
 const CART_KEY = 'kimberry_cart_v3';
+const PENDING_ORDER_KEY = 'kimberry_pending_order';
 
 interface CartLine { id: string; qty: number; }
 
@@ -71,6 +48,7 @@ export default function ShopPage() {
   const [ratesLoading, setRatesLoading] = useState(false);
   const [ratesError, setRatesError] = useState<string | null>(null);
   const [ratesDemo, setRatesDemo] = useState(false);
+  const [paying, setPaying] = useState(false);
   const [form, setForm] = useState({
     email: '', firstName: '', lastName: '',
     address: '', city: '', region: '', postcode: '', phone: '',
@@ -84,6 +62,32 @@ export default function ShopPage() {
       const stored = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
       if (Array.isArray(stored)) setCart(stored);
     } catch { /* noop */ }
+  }, []);
+
+  /* ---- handle return from Stripe Checkout (?checkout=success|cancelled) ---- */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('checkout');
+    if (!status) return;
+    const sessionId = params.get('session_id') || '';
+    // clean the URL so a refresh doesn't re-trigger
+    window.history.replaceState({}, '', '/shop');
+
+    let pending: { source?: string; email?: string } | null = null;
+    try { pending = JSON.parse(localStorage.getItem(PENDING_ORDER_KEY) || 'null'); } catch { /* noop */ }
+    localStorage.removeItem(PENDING_ORDER_KEY);
+
+    if (status === 'success') {
+      const orderId = 'KB-' + (sessionId ? sessionId.slice(-8).toUpperCase() : Date.now().toString(36).toUpperCase());
+      if (pending?.source === 'basket') setCart([]);
+      if (pending?.email) setForm(prev => ({ ...prev, email: pending.email! }));
+      resetRates();
+      setOrderPlaced(orderId);
+      setCheckoutOpen(true);
+      showToast('Payment successful — order confirmed.');
+    } else if (status === 'cancelled') {
+      showToast('Payment cancelled — your order was not placed.');
+    }
   }, []);
 
   /* ---- persist cart ---- */
@@ -179,13 +183,48 @@ export default function ShopPage() {
     resetRates();
   };
 
-  const submitCheckout = (e: FormEvent<HTMLFormElement>) => {
+  const submitCheckout = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const orderId = 'KB-' + Date.now().toString(36).toUpperCase().slice(-6) + '-' +
-      Math.random().toString(36).toUpperCase().slice(2, 5);
-    setOrderPlaced(orderId);
-    if (checkoutSource === 'basket') setCart([]);
-    showToast('Order placed — check your email for confirmation.');
+    if (paying) return;
+    setPaying(true);
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: checkoutItems,
+          shipping: !checkoutAllFreeShipping && selectedRate
+            ? { product: selectedRate.product, code: selectedRate.code, speed: selectedRate.speed, price: selectedRate.price }
+            : null,
+          customer: {
+            email: form.email, firstName: form.firstName, lastName: form.lastName,
+            address: form.address, city: form.city, region: form.region,
+            postcode: form.postcode, phone: form.phone,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        // remember the order context across the Stripe redirect
+        localStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ source: checkoutSource, email: form.email }));
+        window.location.href = data.url;
+        return;
+      }
+      if (!data.demo) {
+        showToast(data.error || 'Could not start payment — please try again.');
+        return;
+      }
+      // demo fallback: Stripe not configured — simulate the order
+      const orderId = 'KB-' + Date.now().toString(36).toUpperCase().slice(-6) + '-' +
+        Math.random().toString(36).toUpperCase().slice(2, 5);
+      setOrderPlaced(orderId);
+      if (checkoutSource === 'basket') setCart([]);
+      showToast('Order placed — check your email for confirmation.');
+    } catch {
+      showToast('Could not start payment — please try again.');
+    } finally {
+      setPaying(false);
+    }
   };
 
   const changeQty = (id: string, delta: number) => {
@@ -795,19 +834,19 @@ export default function ShopPage() {
 
                     <div className="step-card">
                       <div className="step-head"><span className="step-no">3</span><h3>Payment</h3></div>
-                      <div className="pay-note">🔒 Payment is collected securely at the next step. No card details are stored by Kimberry.</div>
+                      <div className="pay-note">🔒 Payment is handled securely by <b>Stripe</b> in NZD. You’ll be redirected to Stripe’s page to complete payment — card details never touch Kimberry.</div>
                     </div>
 
                     <label className="terms">
                       <input type="checkbox" required checked={form.terms} onChange={e => updateForm('terms', e.target.checked)} />
                       <span>I agree to Kimberry’s terms, privacy policy and delivery conditions.</span>
                     </label>
-                    <button className="place-order" type="submit" disabled={!checkoutAllFreeShipping && !selectedRate}>
-                      Place order · {money(checkoutTotal)}
+                    <button className="place-order" type="submit" disabled={paying || (!checkoutAllFreeShipping && !selectedRate)}>
+                      {paying ? 'Redirecting to Stripe…' : `Pay ${money(checkoutTotal)} · Stripe`}
                     </button>
                     <p className="secure-note">
-                      Demo checkout — no real payment will be processed.
-                      {ratesDemo && ' NZ Post demo rates shown — configure NZPOST_API_KEY on the server for live quotes.'}
+                      Secured by Stripe — set STRIPE_SECRET_KEY on the server to enable payment.
+                      {ratesDemo && ' NZ Post demo rates shown — configure NZPOST_API_KEY for live quotes.'}
                     </p>
                   </form>
 
