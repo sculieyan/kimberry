@@ -313,7 +313,7 @@ export default function ShopPage() {
         .kb-shop .hero{padding:28px 6vw 18px;background:linear-gradient(135deg,#F6F9FC,#F7F2E8);position:relative;overflow:hidden}
         .kb-shop .hero:after{content:'';position:absolute;width:420px;height:420px;border-radius:50%;right:-110px;top:-180px;background:rgba(200,169,110,.18)}
         .kb-shop .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--forest);font-weight:600}
-        .kb-shop .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(46px,5vw,68px);font-weight:400;line-height:.95;letter-spacing:-.04em;max-width:720px;margin:15px 0 12px}
+        .kb-shop .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(46px,5vw,68px);font-weight:400;line-height:.95;letter-spacing:-.04em;max-width:720px;margin:8px 0 12px}
         .kb-shop .hero h1 em{color:var(--oat);font-weight:300;font-style:italic}
         .kb-shop .hero p{max-width:650px;color:var(--muted);font-size:17px}
         .kb-shop .trust-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
