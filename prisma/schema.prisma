@@ -8,8 +8,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model test {
-  number     Int      @id
-  name       String?  @db.VarChar
-  createtime DateTime @default(now()) @db.Timestamp(6)
+model OrderMetadata {
+  id              Int    @id @default(autoincrement())
+
+  // 客户信息
+  customerEmail   String? @db.VarChar(255)
+  firstName       String? @db.VarChar(100)
+  lastName        String? @db.VarChar(100)
+  address         String? @db.VarChar(255)
+  city            String? @db.VarChar(100)
+  region          String? @db.VarChar(100)
+  postcode        String? @db.VarChar(20)
+  phone           String? @db.VarChar(50)
+
+  // 物流信息
+  shippingCode    String? @db.VarChar(50)
+  shippingName    String? @db.VarChar(255)
+  shippingPrice   Decimal? @db.Decimal(10,2)
+
+  // 商品信息
+  productName     String? @db.VarChar(255)
+  productDetail   String? @db.Text
+  productQty      Int?    @db.SmallInt
+  productUnitPrice Decimal? @db.Decimal(10,2)
+
+  // 时间戳
+  createdAt       DateTime @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime @updatedAt @db.Timestamp(6)
+
+  // 如果需要关联订单，开启下面，id根据你的Order模型调整
+  // orderId     Int      @unique
+  // order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_metadata")
 }

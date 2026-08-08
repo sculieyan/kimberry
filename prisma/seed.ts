@@ -2,21 +2,43 @@ import { PrismaClient } from "../lib/generated/prisma/client";
 
 const prisma = new PrismaClient();
 
-const testData = [
-  { number: 1, name: "预设数据 1" },
-  { number: 2, name: "预设数据 2" },
-  { number: 3, name: "预设数据 3" },
-  { number: 4, name: "预设数据 4" },
-  { number: 5, name: "预设数据 5" },
-];
+// 一组示例订单元数据（对应 checkout 时写入 Stripe session metadata 的字段）
+const orderMetadataData = {
+  // 客户信息
+  customerEmail: "jane.doe@example.com",
+  firstName: "Jane",
+  lastName: "Doe",
+  address: "12 Queen Street",
+  city: "Auckland",
+  region: "Auckland",
+  postcode: "1010",
+  phone: "+64 21 123 4567",
+
+  // 物流信息
+  shippingCode: "COURIER",
+  shippingName: "Courier (1-3 working days)",
+  shippingPrice: 6.5,
+
+  // 商品信息（每单一款商品）
+  productName: "Classic — Milk Oat Flakes",
+  productDetail: "400g · 10 sachets",
+  productQty: 2,
+  productUnitPrice: 19.9,
+};
 
 async function main() {
-  const result = await prisma.test.createMany({
-    data: testData,
-    skipDuplicates: true,
+  // 幂等：已有数据则跳过，不改动也不新增
+  const existing = await prisma.orderMetadata.findFirst();
+  if (existing) {
+    console.log(`order_metadata 已有数据（id=${existing.id}），跳过种子写入。`);
+    return;
+  }
+
+  const record = await prisma.orderMetadata.create({
+    data: orderMetadataData,
   });
 
-  console.log(`种子数据写入完成，新增 ${result.count} 条。`);
+  console.log(`种子数据写入完成，order_metadata 新增记录 id=${record.id}。`);
 }
 
 main()
