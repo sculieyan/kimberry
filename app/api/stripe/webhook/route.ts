@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
+import { sendOrderNotificationEmail } from '@/lib/order-email';
 
 /**
  * POST /api/stripe/webhook
@@ -38,8 +39,6 @@ export async function POST(request: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    // TODO: fulfil the order — persist to database, send confirmation email,
-    // create the NZ Post shipment with session.metadata.shippingCode, etc.
     console.log('Stripe payment confirmed:', {
       sessionId: session.id,
       amountTotal: session.amount_total,
@@ -47,6 +46,45 @@ export async function POST(request: NextRequest) {
       email: session.customer_email,
       metadata: session.metadata,
     });
+
+    /* ---- notify the merchant inbox with the full order detail ---- */
+    try {
+      const meta = session.metadata || {};
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
+      const items = lineItems.data.map(li => ({
+        name: li.description || 'Item',
+        qty: li.quantity || 1,
+        unitPrice: (li.price?.unit_amount ?? 0) / 100,
+      }));
+      const itemsTotal = items.reduce((sum, it) => sum + it.unitPrice * it.qty, 0);
+      const shippingPrice = Number(meta.shippingPrice) || 0;
+
+      await sendOrderNotificationEmail({
+        orderRef: session.id,
+        customer: {
+          email: session.customer_email || session.customer_details?.email || undefined,
+          firstName: meta.firstName,
+          lastName: meta.lastName,
+          phone: meta.phone || session.customer_details?.phone || undefined,
+          address: meta.address,
+          city: meta.city,
+          region: meta.region,
+          postcode: meta.postcode,
+        },
+        items,
+        shipping: {
+          name: meta.shippingName || 'NZ Post delivery',
+          code: meta.shippingCode,
+          price: shippingPrice,
+        },
+        itemsTotal,
+        grandTotal: (session.amount_total ?? Math.round((itemsTotal + shippingPrice) * 100)) / 100,
+      });
+    } catch (err) {
+      console.error('Failed to send order notification email:', err);
+    }
+    // TODO: persist the order to the database, create the NZ Post shipment
+    // with session.metadata.shippingCode, etc.
   }
 
   return NextResponse.json({ received: true });

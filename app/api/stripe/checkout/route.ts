@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { findProduct } from '@/lib/products';
+import { sendOrderNotificationEmail } from '@/lib/order-email';
 
 /**
  * POST /api/stripe/checkout
@@ -55,6 +56,28 @@ export async function POST(request: NextRequest) {
   /* ---- demo fallback when Stripe is not configured ---- */
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
+    // Simulated order — notify the merchant inbox with the full order detail.
+    const demoItems = (Array.isArray(body?.items) ? body.items : [])
+      .map(item => {
+        const product = findProduct(String(item?.id || ''));
+        if (!product) return null;
+        const qty = Math.max(1, Math.min(99, Math.floor(Number(item.qty) || 1)));
+        return { name: `${product.name} — ${product.category}`, detail: product.size, qty, unitPrice: product.price };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+    const demoItemsTotal = demoItems.reduce((sum, it) => sum + it.unitPrice * it.qty, 0);
+    const demoShipping = body?.shipping && Number(body.shipping.price) > 0
+      ? { name: `${body.shipping.product} (${body.shipping.speed})`, code: body.shipping.code, price: Number(body.shipping.price) }
+      : { name: 'NZ Post delivery — Free shipping', code: 'FREE', price: 0 };
+    await sendOrderNotificationEmail({
+      orderRef: `DEMO-${Date.now().toString(36).toUpperCase()}`,
+      demo: true,
+      customer: body?.customer || {},
+      items: demoItems,
+      shipping: demoShipping,
+      itemsTotal: demoItemsTotal,
+      grandTotal: demoItemsTotal + demoShipping.price,
+    });
     return NextResponse.json({ demo: true, message: 'STRIPE_SECRET_KEY not configured — demo checkout.' });
   }
 
@@ -103,6 +126,8 @@ export async function POST(request: NextRequest) {
         postcode: customer.postcode || '',
         phone: customer.phone || '',
         shippingCode: shipping?.code || 'FREE',
+        shippingName: shipping ? `${shipping.product} (${shipping.speed})` : 'NZ Post delivery — Free shipping',
+        shippingPrice: String(Number(shipping?.price) || 0),
       },
     });
     return NextResponse.json({ url: session.url });
