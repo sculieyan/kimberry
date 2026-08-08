@@ -18,7 +18,7 @@
 
 import nodemailer from 'nodemailer';
 
-export interface OrderEmailItem {
+export interface OrderEmailProduct {
   name: string;
   detail?: string;
   qty: number;
@@ -38,14 +38,14 @@ export interface OrderEmailPayload {
     region?: string;
     postcode?: string;
   };
-  items: OrderEmailItem[];
+  product: OrderEmailProduct;   // one product per order
   shipping: {
     name: string;   // e.g. "Courier (1-3 working days)" or "Free shipping"
     code?: string;
     price: number;  // NZD
   };
-  itemsTotal: number;   // NZD
-  grandTotal: number;   // NZD (items + shipping)
+  subtotal: number;   // NZD (product only)
+  grandTotal: number; // NZD (subtotal + shipping)
   paidAt?: Date;
 }
 
@@ -58,16 +58,15 @@ function escapeHtml(s: string) {
 
 export function buildOrderEmailHtml(order: OrderEmailPayload): string {
   const c = order.customer;
-  const itemRows = order.items.map(it => `
-      <tr>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;">
-          <strong>${escapeHtml(it.name)}</strong>
-          ${it.detail ? `<div style="color:#888;font-size:12px;">${escapeHtml(it.detail)}</div>` : ''}
-        </td>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;">${it.qty}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;">${nzd(it.unitPrice)}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;">${nzd(it.unitPrice * it.qty)}</td>
-      </tr>`).join('');
+  const p = order.product;
+  const productBlock = `
+      <div style="padding:12px 14px;background:#faf9f5;border-radius:8px;">
+        <strong>${escapeHtml(p.name)}</strong>${p.detail ? `<span style="color:#888;font-size:12px;"> · ${escapeHtml(p.detail)}</span>` : ''}
+        <div style="margin-top:6px;font-size:13px;color:#555;">
+          Qty ${p.qty} × ${nzd(p.unitPrice)}
+          <span style="float:right;font-weight:700;color:#333;">${nzd(p.unitPrice * p.qty)}</span>
+        </div>
+      </div>`;
 
   const customerLine = (label: string, value?: string) =>
     value ? `<tr><td style="padding:4px 12px;color:#888;width:110px;">${label}</td><td style="padding:4px 12px;">${escapeHtml(value)}</td></tr>` : '';
@@ -91,25 +90,17 @@ export function buildOrderEmailHtml(order: OrderEmailPayload): string {
         ${customerLine('Address', fullAddress || undefined)}
       </table>
 
-      <h3 style="margin:20px 0 8px;font-size:14px;color:#6b7a5e;">Items</h3>
-      <table style="width:100%;border-collapse:collapse;font-size:13px;">
-        <tr style="background:#faf9f5;color:#888;text-align:left;">
-          <th style="padding:8px 12px;">Product</th>
-          <th style="padding:8px 12px;text-align:center;">Qty</th>
-          <th style="padding:8px 12px;text-align:right;">Unit</th>
-          <th style="padding:8px 12px;text-align:right;">Subtotal</th>
-        </tr>
-        ${itemRows}
-      </table>
+      <h3 style="margin:20px 0 8px;font-size:14px;color:#6b7a5e;">Product</h3>
+      ${productBlock}
 
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:12px;">
         <tr>
-          <td style="padding:6px 12px;color:#888;">Shipping — ${escapeHtml(order.shipping.name)}${order.shipping.code ? ` (${escapeHtml(order.shipping.code)})` : ''}</td>
-          <td style="padding:6px 12px;text-align:right;">${order.shipping.price > 0 ? nzd(order.shipping.price) : 'FREE'}</td>
+          <td style="padding:6px 12px;color:#888;">Subtotal</td>
+          <td style="padding:6px 12px;text-align:right;">${nzd(order.subtotal)}</td>
         </tr>
         <tr>
-          <td style="padding:6px 12px;color:#888;">Items total</td>
-          <td style="padding:6px 12px;text-align:right;">${nzd(order.itemsTotal)}</td>
+          <td style="padding:6px 12px;color:#888;">Shipping — ${escapeHtml(order.shipping.name)}${order.shipping.code ? ` (${escapeHtml(order.shipping.code)})` : ''}</td>
+          <td style="padding:6px 12px;text-align:right;">${order.shipping.price > 0 ? nzd(order.shipping.price) : 'FREE'}</td>
         </tr>
         <tr>
           <td style="padding:10px 12px;font-size:15px;font-weight:700;">Total (NZD)</td>
@@ -141,7 +132,7 @@ export async function sendOrderNotificationEmail(order: OrderEmailPayload): Prom
     auth: { user, pass },
   });
 
-  const itemSummary = order.items.map(i => `${i.name} x${i.qty}`).join(', ');
+  const p = order.product;
   try {
     await transporter.sendMail({
       from: `"Kimberry Orders" <${user}>`,
@@ -152,7 +143,7 @@ export async function sendOrderNotificationEmail(order: OrderEmailPayload): Prom
         `Customer: ${[order.customer.firstName, order.customer.lastName].filter(Boolean).join(' ')} <${order.customer.email || ''}>\n` +
         `Phone: ${order.customer.phone || '-'}\n` +
         `Address: ${[order.customer.address, order.customer.city, order.customer.region, order.customer.postcode].filter(Boolean).join(', ')}\n` +
-        `Items: ${itemSummary}\n` +
+        `Product: ${p.name}${p.detail ? ` (${p.detail})` : ''} x${p.qty} @ ${nzd(p.unitPrice)}\n` +
         `Shipping: ${order.shipping.name} — ${order.shipping.price > 0 ? nzd(order.shipping.price) : 'FREE'}\n` +
         `Total: ${nzd(order.grandTotal)} NZD`,
       html: buildOrderEmailHtml(order),

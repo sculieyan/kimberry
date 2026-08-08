@@ -49,15 +49,13 @@ export async function POST(request: NextRequest) {
 
     /* ---- notify the merchant inbox with the full order detail ---- */
     try {
+      // One product per order — all order detail was stored in the checkout
+      // session metadata at creation time, no extra Stripe API call needed.
       const meta = session.metadata || {};
-      const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
-      const items = lineItems.data.map(li => ({
-        name: li.description || 'Item',
-        qty: li.quantity || 1,
-        unitPrice: (li.price?.unit_amount ?? 0) / 100,
-      }));
-      const itemsTotal = items.reduce((sum, it) => sum + it.unitPrice * it.qty, 0);
+      const qty = Math.max(1, Number(meta.productQty) || 1);
+      const unitPrice = Number(meta.productUnitPrice) || 0;
       const shippingPrice = Number(meta.shippingPrice) || 0;
+      const subtotal = unitPrice * qty;
 
       await sendOrderNotificationEmail({
         orderRef: session.id,
@@ -71,14 +69,19 @@ export async function POST(request: NextRequest) {
           region: meta.region,
           postcode: meta.postcode,
         },
-        items,
+        product: {
+          name: meta.productName || 'Product',
+          detail: meta.productDetail || undefined,
+          qty,
+          unitPrice,
+        },
         shipping: {
           name: meta.shippingName || 'NZ Post delivery',
           code: meta.shippingCode,
           price: shippingPrice,
         },
-        itemsTotal,
-        grandTotal: (session.amount_total ?? Math.round((itemsTotal + shippingPrice) * 100)) / 100,
+        subtotal,
+        grandTotal: (session.amount_total ?? Math.round((subtotal + shippingPrice) * 100)) / 100,
       });
     } catch (err) {
       console.error('Failed to send order notification email:', err);

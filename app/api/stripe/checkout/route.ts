@@ -31,11 +31,16 @@ export async function POST(request: NextRequest) {
   }
 
   /* ---- re-price the basket server-side ---- */
+  // One product per order — the first valid item is the order product.
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+  let orderProduct: { name: string; detail: string; qty: number; unitPrice: number } | null = null;
   for (const item of Array.isArray(body?.items) ? body.items : []) {
     const product = findProduct(String(item?.id || ''));
     if (!product) continue;
     const qty = Math.max(1, Math.min(99, Math.floor(Number(item.qty) || 1)));
+    if (!orderProduct) {
+      orderProduct = { name: `${product.name} — ${product.category}`, detail: product.size, qty, unitPrice: product.price };
+    }
     lineItems.push({
       quantity: qty,
       price_data: {
@@ -57,26 +62,18 @@ export async function POST(request: NextRequest) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
     // Simulated order — notify the merchant inbox with the full order detail.
-    const demoItems = (Array.isArray(body?.items) ? body.items : [])
-      .map(item => {
-        const product = findProduct(String(item?.id || ''));
-        if (!product) return null;
-        const qty = Math.max(1, Math.min(99, Math.floor(Number(item.qty) || 1)));
-        return { name: `${product.name} — ${product.category}`, detail: product.size, qty, unitPrice: product.price };
-      })
-      .filter((x): x is NonNullable<typeof x> => x !== null);
-    const demoItemsTotal = demoItems.reduce((sum, it) => sum + it.unitPrice * it.qty, 0);
     const demoShipping = body?.shipping && Number(body.shipping.price) > 0
       ? { name: `${body.shipping.product} (${body.shipping.speed})`, code: body.shipping.code, price: Number(body.shipping.price) }
       : { name: 'NZ Post delivery — Free shipping', code: 'FREE', price: 0 };
+    const subtotal = orderProduct ? orderProduct.unitPrice * orderProduct.qty : 0;
     await sendOrderNotificationEmail({
       orderRef: `DEMO-${Date.now().toString(36).toUpperCase()}`,
       demo: true,
       customer: body?.customer || {},
-      items: demoItems,
+      product: orderProduct || { name: 'Unknown product', qty: 1, unitPrice: 0 },
       shipping: demoShipping,
-      itemsTotal: demoItemsTotal,
-      grandTotal: demoItemsTotal + demoShipping.price,
+      subtotal,
+      grandTotal: subtotal + demoShipping.price,
     });
     return NextResponse.json({ demo: true, message: 'STRIPE_SECRET_KEY not configured — demo checkout.' });
   }
@@ -128,6 +125,10 @@ export async function POST(request: NextRequest) {
         shippingCode: shipping?.code || 'FREE',
         shippingName: shipping ? `${shipping.product} (${shipping.speed})` : 'NZ Post delivery — Free shipping',
         shippingPrice: String(Number(shipping?.price) || 0),
+        productName: orderProduct?.name || '',
+        productDetail: orderProduct?.detail || '',
+        productQty: String(orderProduct?.qty || 1),
+        productUnitPrice: String(orderProduct?.unitPrice || 0),
       },
     });
     return NextResponse.json({ url: session.url });
