@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { findProduct } from '@/lib/products';
 import { sendOrderNotificationEmail } from '@/lib/order-email';
+import { saveOrderMetadata } from '@/lib/orders';
 
 /**
  * POST /api/stripe/checkout
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
       ? { name: `${body.shipping.product} (${body.shipping.speed})`, code: body.shipping.code, price: Number(body.shipping.price) }
       : { name: 'NZ Post delivery — Free shipping', code: 'FREE', price: 0 };
     const subtotal = orderProduct ? orderProduct.unitPrice * orderProduct.qty : 0;
-    await sendOrderNotificationEmail({
+    const demoOrder = {
       orderRef: `DEMO-${Date.now().toString(36).toUpperCase()}`,
       demo: true,
       customer: body?.customer || {},
@@ -74,7 +75,9 @@ export async function POST(request: NextRequest) {
       shipping: demoShipping,
       subtotal,
       grandTotal: subtotal + demoShipping.price,
-    });
+    };
+    await sendOrderNotificationEmail(demoOrder);
+    await saveOrderMetadata(demoOrder);
     return NextResponse.json({ demo: true, message: 'STRIPE_SECRET_KEY not configured — demo checkout.' });
   }
 

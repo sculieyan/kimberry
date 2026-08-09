@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { sendOrderNotificationEmail } from '@/lib/order-email';
+import { sendOrderNotificationEmail, type OrderEmailPayload } from '@/lib/order-email';
+import { saveOrderMetadata } from '@/lib/orders';
 
 /**
  * POST /api/stripe/webhook
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       metadata: session.metadata,
     });
 
-    /* ---- notify the merchant inbox with the full order detail ---- */
+    /* ---- notify the merchant inbox, then persist the order ---- */
     try {
       // One product per order — all order detail was stored in the checkout
       // session metadata at creation time, no extra Stripe API call needed.
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
       const shippingPrice = Number(meta.shippingPrice) || 0;
       const subtotal = unitPrice * qty;
 
-      await sendOrderNotificationEmail({
+      const order: OrderEmailPayload = {
         orderRef: session.id,
         customer: {
           email: session.customer_email || session.customer_details?.email || undefined,
@@ -82,12 +83,14 @@ export async function POST(request: NextRequest) {
         },
         subtotal,
         grandTotal: (session.amount_total ?? Math.round((subtotal + shippingPrice) * 100)) / 100,
-      });
+      };
+
+      await sendOrderNotificationEmail(order);
+      await saveOrderMetadata(order);
     } catch (err) {
-      console.error('Failed to send order notification email:', err);
+      console.error('Failed to process confirmed order:', err);
     }
-    // TODO: persist the order to the database, create the NZ Post shipment
-    // with session.metadata.shippingCode, etc.
+    // TODO: create the NZ Post shipment with session.metadata.shippingCode, etc.
   }
 
   return NextResponse.json({ received: true });
