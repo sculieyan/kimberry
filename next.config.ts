@@ -22,14 +22,6 @@ const nextConfig: NextConfig = {
       },
     ],
   }, 
-  // Prisma client is generated to a custom path (lib/generated/prisma) and
-  // its native query engine (*.node) is loaded dynamically, so Next.js
-  // file tracing misses it — include it explicitly for API routes,
-  // otherwise the Amplify SSR runtime throws
-  // "Prisma Client could not locate the Query Engine for rhel-openssl-3.0.x".
-  outputFileTracingIncludes: {
-    '/api/**': ['./lib/generated/prisma/**/*'],
-  },
   experimental: {
     optimizeCss: true,
   },

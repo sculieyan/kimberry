@@ -1,6 +1,8 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
+  // Default output (node_modules/@prisma/client) — Amplify's SSR compute
+  // bundle ships node_modules but NOT arbitrary source dirs, so a custom
+  // output path makes the query engine go missing at runtime.
   // Local dev runs on macOS (native); Amplify SSR runs on Amazon Linux 2023.
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
