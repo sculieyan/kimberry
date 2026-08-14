@@ -1,6 +1,8 @@
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
+  // Local dev runs on macOS (native); Amplify SSR runs on Amazon Linux 2023.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
