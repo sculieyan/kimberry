@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 /**
  * TEMPORARY diagnostic endpoint — reports which env vars are present in
  * the SSR runtime (presence + length only, never values).
- * DELETE THIS FILE once the Stripe env issue is resolved.
+ * Append ?db=1 to also probe the database connection and surface the
+ * real Prisma error (credentials are masked before returning).
+ * DELETE THIS FILE once the deployment issues are resolved.
  */
-export async function GET() {
+export async function GET(request: Request) {
   const names = [
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
@@ -22,5 +25,22 @@ export async function GET() {
     const v = process.env[n];
     report[n] = v === undefined ? 'MISSING' : v.trim() === '' ? 'EMPTY' : `set (len ${v.length})`;
   }
+
+  if (new URL(request.url).searchParams.get('db') === '1') {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      report._database = 'OK';
+    } catch (err) {
+      const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+      report._database =
+        'ERROR: ' +
+        message
+          .replace(/postgres(?:ql)?:\/\/[^@]+@/gi, 'postgresql://***@')
+          .split('\n')
+          .slice(0, 6)
+          .join(' | ');
+    }
+  }
+
   return NextResponse.json(report);
 }
