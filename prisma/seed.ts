@@ -4,6 +4,12 @@ const prisma = new PrismaClient();
 
 // 一组示例订单元数据（对应 checkout 时写入 Stripe session metadata 的字段）
 const orderMetadataData = {
+  // 订单号（唯一业务标识）
+  orderNumber: "KB-SEED-00001",
+
+  // Stripe Checkout Session ID（示例为 test 模式格式）
+  stripeSessionId: "cs_test_seed0000000000000000000000000000000000000000000000000001",
+
   // 客户信息
   customerEmail: "jane.doe@example.com",
   firstName: "Jane",

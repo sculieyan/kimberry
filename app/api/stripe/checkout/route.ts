@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { findProduct } from '@/lib/products';
 import { sendOrderNotificationEmail } from '@/lib/order-email';
 import { saveOrderMetadata } from '@/lib/orders';
+import { generateOrderNumber } from '@/lib/order-number';
 
 /**
  * POST /api/stripe/checkout
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
       : { name: 'NZ Post delivery — Free shipping', code: 'FREE', price: 0 };
     const subtotal = orderProduct ? orderProduct.unitPrice * orderProduct.qty : 0;
     const demoOrder = {
+      orderNumber: generateOrderNumber(),
       orderRef: `DEMO-${Date.now().toString(36).toUpperCase()}`,
       demo: true,
       customer: body?.customer || {},
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest) {
     };
     await sendOrderNotificationEmail(demoOrder);
     await saveOrderMetadata(demoOrder);
-    return NextResponse.json({ demo: true, message: 'STRIPE_SECRET_KEY not configured — demo checkout.' });
+    return NextResponse.json({ demo: true, orderNumber: demoOrder.orderNumber, message: 'STRIPE_SECRET_KEY not configured — demo checkout.' });
   }
 
   const origin =
@@ -107,6 +109,9 @@ export async function POST(request: NextRequest) {
         }];
 
   const customer = body?.customer || {};
+  // 订单号在创建 session 时生成一次，随 metadata 传到 webhook，
+  // 保证 webhook 重试时订单号稳定（落库幂等）。
+  const orderNumber = generateOrderNumber();
 
   try {
     const stripe = new Stripe(secretKey);
@@ -118,6 +123,7 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}/shop?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/shop?checkout=cancelled`,
       metadata: {
+        orderNumber,
         firstName: customer.firstName || '',
         lastName: customer.lastName || '',
         address: customer.address || '',
@@ -134,7 +140,7 @@ export async function POST(request: NextRequest) {
         productUnitPrice: String(orderProduct?.unitPrice || 0),
       },
     });
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url, orderNumber });
   } catch (err) {
     console.error('Stripe checkout session failed:', err);
     return NextResponse.json(

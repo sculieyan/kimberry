@@ -1,15 +1,8 @@
-/*
-  Warnings:
-
-  - You are about to drop the `test` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-DROP TABLE "test";
-
 -- CreateTable
 CREATE TABLE "order_metadata" (
     "id" SERIAL NOT NULL,
+    "orderNumber" VARCHAR(32) NOT NULL,
+    "stripeSessionId" VARCHAR(255),
     "customerEmail" VARCHAR(255),
     "firstName" VARCHAR(100),
     "lastName" VARCHAR(100),
@@ -30,3 +23,6 @@ CREATE TABLE "order_metadata" (
 
     CONSTRAINT "order_metadata_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "order_metadata_orderNumber_key" ON "order_metadata"("orderNumber");

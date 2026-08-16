@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { sendOrderNotificationEmail, type OrderEmailPayload } from '@/lib/order-email';
 import { saveOrderMetadata } from '@/lib/orders';
+import { generateOrderNumber } from '@/lib/order-number';
 
 /**
  * POST /api/stripe/webhook
@@ -59,6 +60,8 @@ export async function POST(request: NextRequest) {
       const subtotal = unitPrice * qty;
 
       const order: OrderEmailPayload = {
+        // 订单号在 checkout 时生成并写入 metadata；旧 session 没有时兜底生成
+        orderNumber: meta.orderNumber || generateOrderNumber(),
         orderRef: session.id,
         customer: {
           email: session.customer_email || session.customer_details?.email || undefined,

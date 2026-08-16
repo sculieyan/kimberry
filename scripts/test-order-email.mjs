@@ -4,6 +4,7 @@
 import { sendOrderNotificationEmail } from '../lib/order-email.ts';
 
 const ok = await sendOrderNotificationEmail({
+  orderNumber: 'KB-SAMPLE-00001',
   orderRef: 'SAMPLE-PREVIEW',
   demo: true,
   customer: {

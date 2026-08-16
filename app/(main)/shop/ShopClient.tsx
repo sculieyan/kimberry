@@ -73,12 +73,14 @@ export default function ShopPage() {
     // clean the URL so a refresh doesn't re-trigger
     window.history.replaceState({}, '', '/shop');
 
-    let pending: { source?: string; email?: string } | null = null;
+    let pending: { source?: string; email?: string; orderNumber?: string } | null = null;
     try { pending = JSON.parse(localStorage.getItem(PENDING_ORDER_KEY) || 'null'); } catch { /* noop */ }
     localStorage.removeItem(PENDING_ORDER_KEY);
 
     if (status === 'success') {
-      const orderId = 'KB-' + (sessionId ? sessionId.slice(-8).toUpperCase() : Date.now().toString(36).toUpperCase());
+      // 优先用下单时服务端生成的订单号（与邮件/数据库一致），旧订单兜底用 session id 推导
+      const orderId = pending?.orderNumber ||
+        'KB-' + (sessionId ? sessionId.slice(-8).toUpperCase() : Date.now().toString(36).toUpperCase());
       if (pending?.source === 'basket') setCart([]);
       if (pending?.email) setForm(prev => ({ ...prev, email: pending.email! }));
       resetRates();
@@ -206,7 +208,8 @@ export default function ShopPage() {
       const data = await res.json();
       if (data.url) {
         // remember the order context across the Stripe redirect
-        localStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ source: checkoutSource, email: form.email }));
+        // orderNumber 由服务端生成，与 webhook 邮件/数据库一致
+        localStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({ source: checkoutSource, email: form.email, orderNumber: data.orderNumber }));
         window.location.href = data.url;
         return;
       }
@@ -215,7 +218,9 @@ export default function ShopPage() {
         return;
       }
       // demo fallback: Stripe not configured — simulate the order
-      const orderId = 'KB-' + Date.now().toString(36).toUpperCase().slice(-6) + '-' +
+      // 订单号由服务端生成（与通知邮件一致），缺失时本地兜底
+      const orderId = data.orderNumber ||
+        'KB-' + Date.now().toString(36).toUpperCase().slice(-6) + '-' +
         Math.random().toString(36).toUpperCase().slice(2, 5);
       setOrderPlaced(orderId);
       if (checkoutSource === 'basket') setCart([]);

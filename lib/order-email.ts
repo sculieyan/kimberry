@@ -26,7 +26,8 @@ export interface OrderEmailProduct {
 }
 
 export interface OrderEmailPayload {
-  orderRef: string;
+  orderNumber: string;  // 订单唯一业务标识，如 KB-20260817-A3F9K
+  orderRef?: string;    // 支付侧引用（Stripe session id / demo 标记），不在邮件中展示，保留以便日后对账扩展
   demo?: boolean;
   customer: {
     email?: string;
@@ -78,7 +79,8 @@ export function buildOrderEmailHtml(order: OrderEmailPayload): string {
   <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e8e4da;">
     <div style="background:#6b7a5e;color:#fff;padding:18px 24px;">
       <div style="font-size:18px;font-weight:700;">Kimberry — ${order.demo ? 'Demo Order' : 'New Paid Order'}</div>
-      <div style="font-size:12px;opacity:.85;margin-top:4px;">${escapeHtml(order.orderRef)} · ${(order.paidAt || new Date()).toLocaleString('en-NZ', { timeZone: 'Pacific/Auckland' })} (NZT)</div>
+      <div style="font-size:13px;font-weight:600;margin-top:4px;">Order ${escapeHtml(order.orderNumber)}</div>
+      <div style="font-size:12px;opacity:.85;margin-top:2px;">${(order.paidAt || new Date()).toLocaleString('en-NZ', { timeZone: 'Pacific/Auckland' })} (NZT)</div>
     </div>
 
     <div style="padding:20px 24px;">
@@ -121,7 +123,7 @@ export async function sendOrderNotificationEmail(order: OrderEmailPayload): Prom
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   if (!user || !pass) {
-    console.warn('[order-email] SMTP_USER/SMTP_PASS not configured — order email skipped:', order.orderRef);
+    console.warn('[order-email] SMTP_USER/SMTP_PASS not configured — order email skipped:', order.orderNumber);
     return false;
   }
 
@@ -137,9 +139,9 @@ export async function sendOrderNotificationEmail(order: OrderEmailPayload): Prom
     await transporter.sendMail({
       from: `"Kimberry Orders" <${user}>`,
       to,
-      subject: `${order.demo ? '[DEMO] ' : ''}New order ${order.orderRef} — ${nzd(order.grandTotal)}`,
+      subject: `${order.demo ? '[DEMO] ' : ''}New order ${order.orderNumber} — ${nzd(order.grandTotal)}`,
       text:
-        `Order ${order.orderRef}\n` +
+        `Order ${order.orderNumber}\n` +
         `Customer: ${[order.customer.firstName, order.customer.lastName].filter(Boolean).join(' ')} <${order.customer.email || ''}>\n` +
         `Phone: ${order.customer.phone || '-'}\n` +
         `Address: ${[order.customer.address, order.customer.city, order.customer.region, order.customer.postcode].filter(Boolean).join(', ')}\n` +
@@ -148,7 +150,7 @@ export async function sendOrderNotificationEmail(order: OrderEmailPayload): Prom
         `Total: ${nzd(order.grandTotal)} NZD`,
       html: buildOrderEmailHtml(order),
     });
-    console.log('[order-email] Order notification sent to', to, '—', order.orderRef);
+    console.log('[order-email] Order notification sent to', to, '—', order.orderNumber);
     return true;
   } catch (err) {
     // Never break checkout/webhook because the email failed.

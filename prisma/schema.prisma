@@ -15,6 +15,12 @@ datasource db {
 model OrderMetadata {
   id              Int    @id @default(autoincrement())
 
+  // 订单号 — 订单的唯一业务标识（KB-YYYYMMDD-XXXXX），随邮件发送
+  orderNumber     String  @unique @db.VarChar(32)
+
+  // Stripe Checkout Session ID（cs_test_.../cs_live_...，demo 订单为 DEMO-*），用于支付对账
+  stripeSessionId String? @db.VarChar(255)
+
   // 客户信息
   customerEmail   String? @db.VarChar(255)
   firstName       String? @db.VarChar(100)
