@@ -85,10 +85,13 @@ export default function TrackOrderPage() {
     }
   }, [lookup]);
 
-  // Smooth-scroll to the order panel once it renders (matches reference behaviour)
+  // Smooth-scroll to the order panel once it renders, leaving room for
+  // the fixed 80px navbar so the panel title doesn't slide underneath it.
   useEffect(() => {
     if (order && panelRef.current) {
-      panelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const rect = panelRef.current.getBoundingClientRect();
+      const targetTop = rect.top + window.scrollY - 100; // 80px navbar + 20px buffer
+      window.scrollTo({ top: targetTop, behavior: 'smooth' });
     }
   }, [order]);
 
