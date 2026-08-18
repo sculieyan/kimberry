@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 /* ------------------------------------------------------------------ */
-/*  Track Your Order — look up an order by its order number.          */
-/*  Queries GET /api/orders/lookup, which reads the order_metadata    */
-/*  table. Supports ?order_number=KB-... for direct links.            */
+/*  Track Your Order — look up an order by order number.               */
+/*  Queries GET /api/orders/lookup, which reads the order_metadata     */
+/*  table. Supports ?order_number=KB-... for direct links.             */
+/*  Visual design mirrors the v7 order-query.html reference (no        */
+/*  webfonts — system sans body + Georgia serif headings, exactly      */
+/*  like the reference file which loads no Google Fonts).              */
 /* ------------------------------------------------------------------ */
 
 interface OrderResult {
@@ -47,10 +50,11 @@ export default function TrackOrderPage() {
   const [order, setOrder] = useState<OrderResult | null>(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const panelRef = useRef<HTMLElement | null>(null);
 
-  const lookup = useCallback(async (value: string) => {
-    const cleaned = value.trim().toUpperCase();
-    if (!cleaned) {
+  const lookup = useCallback(async (orderValue: string) => {
+    const cleanedOrder = orderValue.trim().toUpperCase();
+    if (!cleanedOrder) {
       setMessage('Please enter your order number.');
       return;
     }
@@ -58,7 +62,8 @@ export default function TrackOrderPage() {
     setOrder(null);
     setMessage('Looking up your order…');
     try {
-      const response = await fetch(`/api/orders/lookup?order_number=${encodeURIComponent(cleaned)}`);
+      const params = new URLSearchParams({ order_number: cleanedOrder });
+      const response = await fetch(`/api/orders/lookup?${params.toString()}`);
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'We could not find that order.');
       setOrder(data.order as OrderResult);
@@ -73,12 +78,19 @@ export default function TrackOrderPage() {
   // Auto-lookup when arriving via ?order_number=KB-...
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const initial = params.get('order_number');
-    if (initial) {
-      setOrderNumber(initial);
-      lookup(initial);
+    const initialOrder = params.get('order_number');
+    if (initialOrder) {
+      setOrderNumber(initialOrder);
+      lookup(initialOrder);
     }
   }, [lookup]);
+
+  // Smooth-scroll to the order panel once it renders (matches reference behaviour)
+  useEffect(() => {
+    if (order && panelRef.current) {
+      panelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [order]);
 
   const subtotal = order ? (order.product.unitPrice || 0) * (order.product.qty || 1) : 0;
   const shippingPrice = order?.shipping.price ?? 0;
@@ -90,244 +102,195 @@ export default function TrackOrderPage() {
 
   return (
     <>
-      {/* Spacer: pushes the hero below the fixed 80px navbar.
+      {/* Spacer: pushes the page below the fixed 80px navbar.
           Must stay OUTSIDE .track-page — the scoped reset
           `.track-page *{margin:0;padding:0}` would otherwise
           override Tailwind's py-10 and collapse this to zero height. */}
       <section className="relative py-10" aria-hidden="true"></section>
 
-      <div className="track-page">
-      <style>{`
-        .track-page{
-          --ink:#0E1C2E;
-          --muted:#5F6E80;
-          --forest:#1C3A5E;
-          --oat:#C2A15D;
-          --mist:#F7F9F6;
-          color:var(--ink);
-          font-family:'Outfit',sans-serif;
-          line-height:1.65;
-        }
-        .track-page *{box-sizing:border-box;margin:0;padding:0}
+      <main className="track-page">
+        {/* Fonts match the reference order-query.html, which loads no
+            webfonts: system sans-serif body + Georgia serif headings.
+            NOTE: we deliberately use plain `sans-serif` (not the
+            reference's 'Outfit',sans-serif stack) because Next dev
+            aggregates all route CSS into one stylesheet — the home
+            page's Google Fonts @import loads Outfit globally, and real
+            Outfit renders heavier than the reference's Helvetica
+            fallback. */}
+        <style>{`
+          .track-page{
+            --ink:#20231f;
+            --muted:#6e756f;
+            --line:#e6e8e4;
+            --cream:#f7f6f1;
+            --green:#2f5f4b;
+            --red:#9d3e35;
+            color:var(--ink);
+            font-family:sans-serif;
+            line-height:1.6;
+            background:#fff;
+            -webkit-font-smoothing:antialiased;
+          }
+          .track-page *{box-sizing:border-box;margin:0;padding:0}
 
-        .track-hero{
-          width:100vw;
-          padding:52px 6vw 56px; /* +80px spacer above = 132px total, clears navbar */
-          background:
-            radial-gradient(circle at 82% 12%,rgba(194,161,93,.16),transparent 30%),
-            linear-gradient(135deg,#EEF4EA,#D7E5CF);
-        }
-        .track-hero-content{max-width:640px}
-        .track-hero-content span{
-          display:inline-flex;
-          height:30px;
-          padding:0 14px;
-          align-items:center;
-          border-radius:999px;
-          background:rgba(28,58,94,.08);
-          border:1px solid rgba(28,58,94,.12);
-          font-size:11px;
-          font-weight:650;
-          letter-spacing:.12em;
-          text-transform:uppercase;
-          color:var(--forest);
-          margin-bottom:18px;
-        }
-        .track-hero-content h1{
-          font-family:'Cormorant Garamond',serif;
-          font-size:clamp(38px,4.4vw,60px);
-          line-height:.98;
-          letter-spacing:-.05em;
-          font-weight:300;
-          margin-bottom:16px;
-        }
-        .track-hero-content p{
-          max-width:520px;
-          color:var(--muted);
-          font-size:15px;
-        }
+          .track-shell{max-width:1120px;margin:auto;padding:70px 24px 100px}
 
-        .track-main{
-          background:
-            radial-gradient(circle at 12% 12%,rgba(194,161,93,.10),transparent 28%),
-            linear-gradient(180deg,#FFFFFF 0%,var(--mist) 100%);
-          padding:64px 6vw 96px;
-        }
-        .track-shell{max-width:880px;margin:0 auto}
+          .track-hero{text-align:center;max-width:700px;margin:0 auto 38px}
+          .track-page .eyebrow{
+            font-size:12px;
+            letter-spacing:.18em;
+            font-weight:700;
+            color:var(--green);
+            margin:0 0 12px;
+          }
+          .track-hero h1{
+            font:500 clamp(36px,5vw,58px)/1.05 Georgia,serif;
+            margin:0 0 18px;
+            color:var(--ink);
+          }
+          .track-hero>p:last-child{color:var(--muted);font-size:17px;line-height:1.6}
 
-        .lookup-card{
-          background:rgba(255,255,255,.85);
-          border:1px solid rgba(28,58,94,.07);
-          border-radius:34px;
-          padding:42px;
-          box-shadow:0 22px 62px rgba(28,58,94,.055);
-        }
-        .lookup-card h2{
-          font-family:'Cormorant Garamond',serif;
-          font-size:34px;
-          line-height:1;
-          font-weight:400;
-          letter-spacing:-.04em;
-          margin-bottom:22px;
-        }
-        .lookup-form{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
-        .lookup-field{flex:1;min-width:240px}
-        .lookup-field label{
-          display:block;
-          font-size:12px;
-          font-weight:650;
-          letter-spacing:.08em;
-          text-transform:uppercase;
-          color:var(--forest);
-          margin-bottom:8px;
-        }
-        .lookup-field input{
-          width:100%;
-          height:52px;
-          padding:0 18px;
-          border-radius:16px;
-          border:1px solid rgba(14,28,46,.14);
-          background:#fff;
-          font-family:'Outfit',sans-serif;
-          font-size:15px;
-          color:var(--ink);
-          outline:none;
-          transition:border-color .2s, box-shadow .2s;
-        }
-        .lookup-field input:focus{
-          border-color:var(--forest);
-          box-shadow:0 0 0 4px rgba(28,58,94,.08);
-        }
-        .lookup-btn{
-          height:52px;
-          padding:0 28px;
-          border:none;
-          border-radius:999px;
-          background:var(--forest);
-          color:#fff;
-          font-family:'Outfit',sans-serif;
-          font-size:14px;
-          font-weight:650;
-          letter-spacing:.02em;
-          cursor:pointer;
-          transition:background .2s, transform .2s;
-        }
-        .lookup-btn:hover:not(:disabled){background:#2A5282;transform:translateY(-1px)}
-        .lookup-btn:disabled{opacity:.6;cursor:wait}
-        .form-message{
-          margin-top:16px;
-          font-size:14px;
-          color:#B4532A;
-          min-height:20px;
-        }
+          .lookup-card,.order-panel{
+            background:#fff;
+            border:1px solid var(--line);
+            border-radius:22px;
+            box-shadow:0 18px 50px rgba(31,39,33,.07);
+          }
+          .lookup-card{max-width:720px;margin:auto;padding:32px}
+          .lookup-card h2{font:500 25px Georgia,serif;margin:0 0 22px}
+          .lookup-form{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}
+          .lookup-field{
+            font-size:13px;
+            font-weight:700;
+            color:#3e443f;
+            display:grid;
+            gap:8px;
+          }
+          .lookup-field input{
+            width:100%;
+            border:1px solid #cfd4cf;
+            border-radius:10px;
+            padding:13px 14px;
+            font:inherit;
+            font-weight:400;
+            background:#fff;
+            outline:none;
+          }
+          .lookup-field input:focus{border-color:var(--green)}
+          .lookup-btn{
+            border-radius:999px;
+            padding:13px 19px;
+            font-weight:700;
+            font-size:14px;
+            cursor:pointer;
+            border:1px solid var(--green);
+            background:var(--green);
+            color:#fff;
+          }
+          .lookup-btn:disabled{opacity:.6;cursor:wait}
+          .form-message{grid-column:1/-1;margin:2px 0 0;color:var(--red);font-size:13px}
 
-        .order-panel{margin-top:28px}
-        .order-heading{
-          display:flex;
-          justify-content:space-between;
-          align-items:flex-start;
-          gap:16px;
-          margin-bottom:20px;
-        }
-        .order-heading .eyebrow{
-          font-size:11px;
-          font-weight:650;
-          letter-spacing:.12em;
-          text-transform:uppercase;
-          color:var(--oat);
-          margin-bottom:6px;
-        }
-        .order-heading h2{
-          font-family:'Cormorant Garamond',serif;
-          font-size:36px;
-          line-height:1;
-          font-weight:400;
-          letter-spacing:-.03em;
-        }
-        .order-heading .muted{color:var(--muted);font-size:14px;margin-top:8px}
-        .status-pill{
-          display:inline-flex;
-          align-items:center;
-          height:34px;
-          padding:0 16px;
-          border-radius:999px;
-          background:#E7F2E8;
-          border:1px solid #CFE5D2;
-          color:#2F6B3C;
-          font-size:12px;
-          font-weight:650;
-          letter-spacing:.06em;
-          text-transform:uppercase;
-          white-space:nowrap;
-        }
+          .order-panel{margin-top:34px;padding:34px}
+          .order-heading{
+            display:flex;
+            justify-content:space-between;
+            gap:20px;
+            align-items:flex-start;
+            padding-bottom:26px;
+            border-bottom:1px solid var(--line);
+          }
+          .order-heading h2{font:500 28px Georgia,serif;margin:0 0 8px}
+          .track-page .muted{color:var(--muted);line-height:1.55}
+          .status-pill{
+            display:inline-flex;
+            padding:9px 14px;
+            border-radius:999px;
+            background:#e8f2ec;
+            color:var(--green);
+            font-size:12px;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.08em;
+            white-space:nowrap;
+          }
 
-        .panel-grid{
-          display:grid;
-          grid-template-columns:1.4fr 1fr;
-          gap:20px;
-        }
-        .panel-card{
-          background:rgba(255,255,255,.85);
-          border:1px solid rgba(28,58,94,.07);
-          border-radius:28px;
-          padding:30px;
-          box-shadow:0 18px 48px rgba(28,58,94,.05);
-        }
-        .panel-card h3{
-          font-family:'Cormorant Garamond',serif;
-          font-size:24px;
-          font-weight:400;
-          letter-spacing:-.02em;
-          margin-bottom:18px;
-        }
-        .panel-card p{font-size:14px;color:var(--ink)}
-        .panel-card .muted{color:var(--muted);font-size:14px;margin-top:6px}
+          .panel-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;margin-top:24px}
+          .panel-card{border:1px solid var(--line);border-radius:16px;padding:24px;background:#fff}
+          .panel-card h3{font:500 21px Georgia,serif;margin:0 0 20px}
+          .panel-grid .delivery-card{grid-column:1/-1}
 
-        .order-item{
-          display:flex;
-          justify-content:space-between;
-          gap:16px;
-          padding:14px 0;
-          border-bottom:1px dashed rgba(14,28,46,.12);
-          font-size:14px;
-        }
-        .order-item small{display:block;color:var(--muted);margin-top:4px}
-        .order-item strong{white-space:nowrap}
+          .timeline{list-style:none;margin:0;padding:0}
+          .timeline li{position:relative;padding:0 0 28px 38px;color:var(--muted)}
+          .timeline li:before{
+            content:"";
+            position:absolute;
+            left:4px;
+            top:2px;
+            width:17px;
+            height:17px;
+            border-radius:50%;
+            border:2px solid #cbd1cb;
+            background:#fff;
+          }
+          .timeline li:after{
+            content:"";
+            position:absolute;
+            left:13px;
+            top:21px;
+            width:1px;
+            height:calc(100% - 18px);
+            background:#d9ddd9;
+          }
+          .timeline li:last-child:after{display:none}
+          .timeline li.complete{color:var(--ink);font-weight:700}
+          .timeline li.complete:before{
+            background:var(--green);
+            border-color:var(--green);
+            box-shadow:inset 0 0 0 4px white;
+          }
+          .timeline li.current:before{border-color:var(--green);box-shadow:0 0 0 5px #e8f2ec}
+          .timeline small{display:block;margin-top:5px;color:var(--muted);font-weight:400}
 
-        .money-list{margin-top:14px;font-size:14px}
-        .money-list > div{
-          display:flex;
-          justify-content:space-between;
-          padding:8px 0;
-          color:var(--muted);
-        }
-        .money-list .total-row{
-          border-top:1px solid rgba(14,28,46,.12);
-          margin-top:6px;
-          padding-top:14px;
-          color:var(--ink);
-          font-weight:650;
-          font-size:16px;
-        }
+          .order-items{display:grid;gap:14px}
+          .order-item{
+            display:flex;
+            justify-content:space-between;
+            gap:15px;
+            border-bottom:1px solid var(--line);
+            padding-bottom:12px;
+          }
+          .order-item p{margin:0}
+          .order-item small{color:var(--muted)}
+          .money-list{margin:18px 0 0}
+          .money-list>div{display:flex;justify-content:space-between;padding:7px 0}
+          .money-list dt,.money-list dd{margin:0}
+          .total-row{
+            border-top:1px solid var(--line);
+            margin-top:8px;
+            padding-top:15px!important;
+            font-weight:800;
+          }
 
-        @media(max-width:820px){
-          .panel-grid{grid-template-columns:1fr}
-          .track-hero{padding:28px 28px 44px} /* +80px spacer = 108px total */
-          .track-main{padding:44px 6vw 72px}
-          .lookup-card{padding:30px}
-        }
-      `}</style>
+          @media(max-width:800px){
+            .lookup-form{grid-template-columns:1fr}
+            .panel-grid{grid-template-columns:1fr}
+            .order-panel{padding:22px}
+          }
+          @media(max-width:520px){
+            .track-shell{padding:45px 16px 70px}
+            .lookup-card{padding:22px}
+            .order-heading{display:block}
+            .status-pill{margin-top:14px}
+          }
+        `}</style>
 
-      <section className="track-hero">
-        <div className="track-hero-content">
-          <span>Order Support</span>
-          <h1>Track your order</h1>
-          <p>Enter the order number from your confirmation email to see your order details and delivery information.</p>
-        </div>
-      </section>
-
-      <main className="track-main">
         <div className="track-shell">
+          <section className="track-hero">
+            <p className="eyebrow">ORDER SUPPORT</p>
+            <h1>Track or manage your order</h1>
+            <p>Enter the order number from your confirmation email to see your order details.</p>
+          </section>
+
           <section className="lookup-card" aria-labelledby="lookup-title">
             <h2 id="lookup-title">Find your order</h2>
             <form
@@ -338,46 +301,59 @@ export default function TrackOrderPage() {
                 lookup(orderNumber);
               }}
             >
-              <div className="lookup-field">
-                <label htmlFor="order-number">Order number</label>
+              <label className="lookup-field">
+                Order number
                 <input
-                  id="order-number"
-                  name="orderNumber"
+                  name="orderId"
                   autoComplete="off"
-                  placeholder="e.g. KB-20260819-ABCDE"
+                  placeholder="e.g. KB-20260721-ABC123"
                   value={orderNumber}
                   onChange={(event) => setOrderNumber(event.target.value)}
                   required
                 />
-              </div>
+              </label>
               <button className="lookup-btn" type="submit" disabled={loading}>
                 {loading ? 'Searching…' : 'Find my order'}
               </button>
+              <p className="form-message" role="status" aria-live="polite">{message}</p>
             </form>
-            <p className="form-message" role="status" aria-live="polite">{message}</p>
           </section>
 
           {order && (
-            <section className="order-panel" aria-live="polite">
+            <section className="order-panel" ref={panelRef} aria-live="polite">
               <div className="order-heading">
                 <div>
-                  <p className="eyebrow">Your Order</p>
+                  <p className="eyebrow">YOUR ORDER</p>
                   <h2>{order.orderNumber}</h2>
                   <p className="muted">Placed {formatDate(order.placedAt)}</p>
                 </div>
-                <span className="status-pill">{order.demo ? 'Demo order' : 'Order confirmed'}</span>
+                <span className="status-pill">{order.demo ? 'Demo order' : 'Order received'}</span>
               </div>
 
               <div className="panel-grid">
+                <article className="panel-card timeline-card">
+                  <h3>Order progress</h3>
+                  <ol className="timeline">
+                    <li className="current">
+                      Order received
+                      <small>{formatDate(order.placedAt)}</small>
+                    </li>
+                    <li>Packed and ready</li>
+                    <li>Dispatched with NZ Post</li>
+                  </ol>
+                </article>
+
                 <article className="panel-card">
                   <h3>Order summary</h3>
-                  <div className="order-item">
-                    <div>
-                      <p>{order.product.name || 'Kimberry product'}</p>
-                      {order.product.detail && <small>{order.product.detail}</small>}
-                      <small>Quantity {order.product.qty || 1}</small>
+                  <div className="order-items">
+                    <div className="order-item">
+                      <div>
+                        <p>{order.product.name || 'Kimberry product'}</p>
+                        {order.product.detail && <small>{order.product.detail}</small>}
+                        <small>Quantity {order.product.qty || 1}</small>
+                      </div>
+                      <strong>{money(subtotal)}</strong>
                     </div>
-                    <strong>{money(subtotal)}</strong>
                   </div>
                   <dl className="money-list">
                     <div><dt>Subtotal</dt><dd>{money(subtotal)}</dd></div>
@@ -389,19 +365,17 @@ export default function TrackOrderPage() {
                   </dl>
                 </article>
 
-                <article className="panel-card">
+                <article className="panel-card delivery-card">
                   <h3>Delivery details</h3>
                   <p>{customerName || 'Kimberry customer'}</p>
                   {addressLine && <p className="muted">{addressLine}</p>}
                   {order.customer.email && <p className="muted">{order.customer.email}</p>}
-                  {order.customer.phone && <p className="muted">{order.customer.phone}</p>}
                 </article>
               </div>
             </section>
           )}
         </div>
       </main>
-      </div>
     </>
   );
 }
