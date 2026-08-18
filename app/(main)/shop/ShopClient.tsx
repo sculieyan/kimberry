@@ -578,7 +578,7 @@ export default function ShopPage() {
         {/* ---- Support bar ---- */}
         <div className="shop-support-bar">
           <span>Already placed an order?</span>
-          <a href="/order-query">Track your order <b>→</b></a>
+          <a href="/track-order">Track your order <b>→</b></a>
         </div>
 
         {/* ---- Products ---- */}
